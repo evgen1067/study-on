@@ -3,14 +3,15 @@
 {% block title %}Course index{% endblock %}
 
 {% block body %}
-    <h1>Course index</h1>
+<div class="container">
+    <h1>Список курсов</h1>
 
-    <table class="table">
+    <table class="table table-bordered table-striped">
         <thead>
-            <tr>
-                <th>Название</th>
-                <th>Описание</th>
-            </tr>
+        <tr>
+            <th>Название</th>
+            <th>Описание</th>
+        </tr>
         </thead>
         <tbody>
         {% for course in courses %}
@@ -28,5 +29,6 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_course_new') }}">Добавить новый курс</a>
+    <a class="btn btn-success" href="{{ path('app_course_new') }}">Добавить новый курс</a>
+</div>
 {% endblock %}
