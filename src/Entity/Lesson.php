@@ -26,9 +26,6 @@ class Lesson
     private ?string $content = null;
 
     #[ORM\Column]
-    #[Assert\LessThan(
-        value: 10000,
-    )]
     private ?int $number = null;
 
     public function getId(): ?int

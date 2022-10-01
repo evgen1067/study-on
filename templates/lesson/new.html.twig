@@ -3,9 +3,12 @@
 {% block title %}New Lesson{% endblock %}
 
 {% block body %}
-    <h1>Create new Lesson</h1>
+    <div class="container">
+        <h1>Создайте новый урок прямо сейчас!</h1>
 
-    {{ include('lesson/_form.html.twig') }}
+        {{ include('lesson/_form.html.twig') }}
 
-    <a href="{{ path('app_lesson_index') }}">back to list</a>
+        <a class="btn btn-primary mb-3 w-100" href="{{ path('app_course_show', { 'id' : course.id }) }}">Обратно к курсу</a>
+    </div>
+
 {% endblock %}
