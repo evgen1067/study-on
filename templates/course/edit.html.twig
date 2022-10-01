@@ -6,9 +6,9 @@
     <div class="container">
         <h1>Edit Course</h1>
 
-        {{ include('course/_form.html.twig', {'button_label': 'Update'}) }}
+        {{ include('course/_form.html.twig', {'button_label': 'Обновить'}) }}
 
-        <a href="{{ path('app_course_index') }}">back to list</a>
+        <a class="btn btn-success mb-3 w-100" href="{{ path('app_course_show', {'id' : course.id}) }}">Обратно к курсу</a>
 
         {{ include('course/_delete_form.html.twig') }}
     </div>
