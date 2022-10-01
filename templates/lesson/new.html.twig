@@ -1,7 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Lesson{% endblock %}
-
+{% block title %}{{ 'Новый урок / ' ~ course.name ~ '/ StudyOn' }}{% endblock %}
 {% block body %}
     <div class="container">
         <h1>Создайте новый урок прямо сейчас!</h1>
