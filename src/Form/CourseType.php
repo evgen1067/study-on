@@ -4,17 +4,36 @@ namespace App\Form;
 
 use App\Entity\Course;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
 
 class CourseType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('code')
-            ->add('name')
-            ->add('description')
+            ->add('code', TextType::class, [
+                'label' => 'Символьный код',
+                'constraints' => [
+                    new Length(max: 255, maxMessage: 'Символьный код должен быть не более 255 символов')
+                ]
+            ])
+            ->add('name', TextType::class, [
+                'label' => 'Название',
+                'constraints' => [
+                    new Length(max: 255, maxMessage: 'Название должно быть не более 255 символов')
+                ]
+            ])
+            ->add('description', TextareaType::class, [
+                'label' => 'Описание',
+                'required' => false,
+                'constraints' => [
+                    new Length(max: 1000, maxMessage: 'Описание должно быть не более 1000 символов')
+                ]
+            ])
         ;
     }
 
