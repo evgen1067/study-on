@@ -6,7 +6,11 @@
     <div class="container">
         <h3>{{ course.name }}</h3>
 
+        {% if course.description %}
         <h5 class="fw-normal">{{ course.description }}</h5>
+        {% else %}
+            <h5 class="fw-normal">Описания еще нет. Добавьте его!</h5>
+        {% endif %}
 
         <h5>Список уроков:</h5>
 
