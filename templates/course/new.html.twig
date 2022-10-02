@@ -3,9 +3,10 @@
 {% block title %}{{ 'Новый курс / StudyOn' }}{% endblock %}
 
 {% block body %}
-    <h3>Новый курс</h3>
+    <h1 class="text-center m-3">Создание курса</h1>
 
     {{ include('course/_form.html.twig') }}
 
-    <a class="btn btn-success mb-3 w-100" href="{{ path('app_course_index') }}">К списку курсов</a>
+    <a class="btn btn btn-secondary w-100 m-auto" href="{{ path('app_course_index') }}">К списку курсов</a>
+
 {% endblock %}

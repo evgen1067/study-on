@@ -3,12 +3,12 @@
 {% block title %}{{ lesson.name ~ ' / ' ~ lesson.course.name ~ ' / StudyOn' }}{% endblock %}
 
 {% block body %}
-    <h3>{{ lesson.name }}</h3>
+    <h1 class="text-center m-3">{{ lesson.name }}</h1>
 
     <h5 class="fw-normal">{{ lesson.content }}</h5>
 
     <div class="d-flex flex-column">
-        <a class="btn btn-primary mb-3" href="{{ path('app_course_show', { 'id': lesson.course.id }) }}">К курсу</a>
+        <a class="btn btn-secondary mb-3" href="{{ path('app_course_show', { 'id': lesson.course.id }) }}">К курсу</a>
 
         <a class="btn btn-warning mb-3" href="{{ path('app_lesson_edit', {'id': lesson.id}) }}">Редактировать</a>
 
