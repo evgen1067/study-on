@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Ой! Что-то случилось.{% endblock %}
+
+{% block body %}
+    <div class="d-flex align-items-center justify-content-center vh-100">
+        <div class="text-center">
+            <h1 class="display-1 fw-bold">{{ status_code }}</h1>
+            <p class="fs-3"> <span class="text-danger">Ой!</span> Что-то случилось.</p>
+            <p class="lead">
+                Всегда есть время для перерыва на кофе. Мы должны вернуться к тому времени, как ты допьешь свой кофе.
+            </p>
+            <a href="{{ path('app_course_index') }}" class="btn btn-primary">К курсам</a>
+        </div>
+    </div>
+{% endblock %}
