@@ -25,12 +25,15 @@ fixtload:
 	@${CONSOLE} doctrine:fixtures:load
 
 require:
-	@${COMPOSER} require
+	@${COMPOSER} require $2
 
 encore_dev:
-	@${COMPOSE} run node yarn encore dev
+	@${COMPOSE} run node yarn encore dev --watch
 
 encore_prod:
 	@${COMPOSE} run node yarn encore production
+
+phpunit:
+	@${PHP} bin/phpunit
 
 -include local.mk
