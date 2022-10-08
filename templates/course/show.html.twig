@@ -3,10 +3,10 @@
 {% block title %}{{ course.name ~ ' / StudyOn' }}{% endblock %}
 
 {% block body %}
-    <h1 class="text-center m-3">{{ course.name }}</h1>
+    <h1 class="text-center m-3 course-name">{{ course.name }}</h1>
 
     {% if course.description %}
-        <h5 class="fw-normal">{{ course.description }}</h5>
+        <h5 class="fw-normal course-description">{{ course.description }}</h5>
     {% else %}
         <h5 class="fw-normal">Описание отсутствует..
             <a class="link-info" href="{{ path('app_course_edit', {'id': course.id}) }}">Добавьте сейчас!</a></h5>
@@ -31,7 +31,7 @@
     <div class="d-flex flex-column">
         <a class="btn btn-secondary mb-3" href="{{ path('app_course_index') }}">К списку курсов</a>
 
-        <a class="btn btn-warning mb-3" href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать</a>
+        <a class="btn btn-warning mb-3 app_course_edit" href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать</a>
 
         {{ include('course/_delete_form.html.twig') }}
 

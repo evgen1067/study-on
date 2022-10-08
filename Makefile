@@ -28,12 +28,12 @@ require:
 	@${COMPOSER} require $2
 
 encore_dev:
-	@${COMPOSE} run node yarn encore dev --watch
+	@${COMPOSE} --env-file .env.local run node yarn encore dev --watch
 
 encore_prod:
-	@${COMPOSE} run node yarn encore production
+	@${COMPOSE} --env-file .env.local run node yarn encore production
 
 phpunit:
-	@${PHP} bin/phpunit
+	@${PHP} bin/phpunit --testdox
 
 -include local.mk

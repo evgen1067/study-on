@@ -14,9 +14,9 @@
         </thead>
         <tbody>
         {% for course in courses %}
-            <tr>
+            <tr class="course">
                 <td>
-                    <a class="link-secondary" href="{{ path('app_course_show', {'id': course.id}) }}">{{ course.name }}</a>
+                    <a class="link-secondary app_course_show" href="{{ path('app_course_show', {'id': course.id}) }}">{{ course.name }}</a>
                 </td>
                 {% if course.description %}
                     <td>{{ course.description }}</td>
@@ -32,5 +32,5 @@
         </tbody>
     </table>
 
-    <a class="btn btn-primary" href="{{ path('app_course_new') }}">Добавить новый курс</a>
+    <a class="btn btn-primary app_course_new" href="{{ path('app_course_new') }}">Добавить новый курс</a>
 {% endblock %}

@@ -72,15 +72,15 @@ class CourseController extends AbstractController
     #[Route('/{id}', name: 'app_course_delete', methods: ['POST'])]
     public function delete(Request $request, Course $course, CourseRepository $courseRepository): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$course->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $course->getId(), $request->request->get('_token'))) {
             $courseRepository->remove($course, true);
         }
 
         return $this->redirectToRoute('app_course_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/new/{course}', name: 'app_lesson_new', methods: ['GET', 'POST'])]
-    public function new(Course $course, Request $request, LessonRepository $lessonRepository): Response
+    #[Route('/{course}/lessons/new', name: 'app_lesson_new', methods: ['GET', 'POST'])]
+    public function newLesson(Course $course, Request $request, LessonRepository $lessonRepository): Response
     {
         $lesson = new Lesson();
         $lesson->setCourse($course);

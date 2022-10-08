@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class AbstractTest extends WebTestCase
 {
@@ -22,7 +23,12 @@ abstract class AbstractTest extends WebTestCase
         $this->failOnResponseStatusCheck($response, 'isOk', $message, $type);
     }
 
-    private function failOnResponseStatusCheck(Response $response = null, $func = null, ?string  $message = null, string   $type = 'text/html')
+    private function failOnResponseStatusCheck(
+        Response $response = null,
+                 $func = null,
+        ?string  $message = null,
+        string   $type = 'text/html'
+    )
     {
         if (null === $func) {
             $func = 'isOk';
@@ -159,7 +165,7 @@ abstract class AbstractTest extends WebTestCase
             }
 
             if ($fixture instanceof ContainerAwareInterface) {
-                $fixture->setContainer(static::$container);
+                $fixture->setContainer(static::getContainer());
             }
 
             $loader->addFixture($fixture);
@@ -176,7 +182,7 @@ abstract class AbstractTest extends WebTestCase
      */
     protected static function getEntityManager()
     {
-        return static::$container->get('doctrine')->getManager();
+        return static::getContainer()->get('doctrine')->getManager();
     }
 
     /**
