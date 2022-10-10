@@ -2,10 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\Course;
 use App\Entity\Lesson;
 use App\Form\LessonType;
-use App\Repository\CourseRepository;
 use App\Repository\LessonRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/lessons')]
 class LessonController extends AbstractController
 {
-
     #[Route('/{id}', name: 'app_lesson_show', methods: ['GET'])]
     public function show(Lesson $lesson): Response
     {
@@ -34,7 +31,7 @@ class LessonController extends AbstractController
             $lessonRepository->save($lesson, true);
 
             return $this->redirectToRoute('app_course_show', [
-                'id' => $lesson->getCourse()->getId()
+                'id' => $lesson->getCourse()->getId(),
             ], Response::HTTP_SEE_OTHER);
         }
 
@@ -48,7 +45,7 @@ class LessonController extends AbstractController
     public function delete(Request $request, Lesson $lesson, LessonRepository $lessonRepository): Response
     {
         $courseId = $lesson->getCourse()->getId();
-        if ($this->isCsrfTokenValid('delete' . $lesson->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$lesson->getId(), $request->request->get('_token'))) {
             $lessonRepository->remove($lesson, true);
         }
 

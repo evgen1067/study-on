@@ -18,7 +18,6 @@ class CourseToStringTransformer implements DataTransformerInterface
 
     /**
      * @param $course
-     * @return string
      */
     public function transform($course): string
     {
@@ -31,7 +30,6 @@ class CourseToStringTransformer implements DataTransformerInterface
 
     /**
      * @param $courseId
-     * @return Course|null
      */
     public function reverseTransform($courseId): ?Course
     {
@@ -50,10 +48,7 @@ class CourseToStringTransformer implements DataTransformerInterface
             // causes a validation error
             // this message is not shown to the user
             // see the invalid_message option
-            throw new TransformationFailedException(sprintf(
-                'Курс с id = "%s" не существует!',
-                $courseId
-            ));
+            throw new TransformationFailedException(sprintf('Курс с id = "%s" не существует!', $courseId));
         }
 
         return $course;

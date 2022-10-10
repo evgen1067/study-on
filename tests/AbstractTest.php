@@ -11,7 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class AbstractTest extends WebTestCase
 {
@@ -25,11 +24,10 @@ abstract class AbstractTest extends WebTestCase
 
     private function failOnResponseStatusCheck(
         Response $response = null,
-                 $func = null,
-        ?string  $message = null,
-        string   $type = 'text/html'
-    )
-    {
+        $func = null,
+        ?string $message = null,
+        string $type = 'text/html'
+    ) {
         if (null === $func) {
             $func = 'isOk';
         }
@@ -52,13 +50,13 @@ abstract class AbstractTest extends WebTestCase
 
         $err = $this->guessErrorMessageFromResponse($response, $type);
         if ($message) {
-            $message = rtrim($message, '.') . ". ";
+            $message = rtrim($message, '.').'. ';
         }
 
         if (is_int($func)) {
-            $template = "Failed asserting Response status code %s equals %s.";
+            $template = 'Failed asserting Response status code %s equals %s.';
         } else {
-            $template = "Failed asserting that Response[%s] %s.";
+            $template = 'Failed asserting that Response[%s] %s.';
             $func = preg_replace('#([a-z])([A-Z])#', '$1 $2', $func);
         }
 
@@ -66,19 +64,16 @@ abstract class AbstractTest extends WebTestCase
 
         $max_length = 100;
         if (mb_strlen($err, 'utf-8') < $max_length) {
-            $message .= " " . $this->makeErrorOneLine($err);
+            $message .= ' '.$this->makeErrorOneLine($err);
         } else {
-            $message .= " " . $this->makeErrorOneLine(mb_substr($err, 0, $max_length, 'utf-8') . '...');
-            $message .= "\n\n" . $err;
+            $message .= ' '.$this->makeErrorOneLine(mb_substr($err, 0, $max_length, 'utf-8').'...');
+            $message .= "\n\n".$err;
         }
 
         $this->fail($message);
     }
 
     /**
-     * @param Response $response
-     * @param string $type
-     *
      * @return string
      */
     public function guessErrorMessageFromResponse(Response $response, string $type = 'text/html')
@@ -98,7 +93,7 @@ abstract class AbstractTest extends WebTestCase
                         $add = ' FORMATTED';
                     }
                 }
-                $title = '[' . $response->getStatusCode() . ']' . $add . ' - ' . $content;
+                $title = '['.$response->getStatusCode().']'.$add.' - '.$content;
             } else {
                 $title = $crawler->filter('title')->text();
             }
@@ -153,7 +148,7 @@ abstract class AbstractTest extends WebTestCase
     }
 
     /**
-     * Load fixtures before test
+     * Load fixtures before test.
      */
     protected function loadFixtures(array $fixtures = [])
     {
@@ -178,7 +173,7 @@ abstract class AbstractTest extends WebTestCase
     }
 
     /**
-     * Shortcut
+     * Shortcut.
      */
     protected static function getEntityManager()
     {
@@ -186,7 +181,7 @@ abstract class AbstractTest extends WebTestCase
     }
 
     /**
-     * List of fixtures for certain test
+     * List of fixtures for certain test.
      */
     protected function getFixtures(): array
     {

@@ -6,7 +6,6 @@ use App\DataFixtures\AppFixtures;
 use App\Entity\Course;
 use App\Tests\AbstractTest;
 use joshtronic\LoremIpsum;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class CourseControllerTest extends AbstractTest
 {
@@ -48,16 +47,16 @@ class CourseControllerTest extends AbstractTest
         $client = self::getClient();
         $courses = self::getEntityManager()->getRepository(Course::class)->findAll();
         foreach ($courses as $course) {
-            # детальная страница
-            $client->request('GET', '/courses/' . $course->getId());
+            // детальная страница
+            $client->request('GET', '/courses/'.$course->getId());
             $this->assertResponseOk();
 
-            # страница редактирования
-            $client->request('GET', '/courses/' . $course->getId() . '/edit');
+            // страница редактирования
+            $client->request('GET', '/courses/'.$course->getId().'/edit');
             $this->assertResponseOk();
 
-            # страница создания урока
-            $client->request('GET', '/courses/' . $course->getId() . '/lessons/new');
+            // страница создания урока
+            $client->request('GET', '/courses/'.$course->getId().'/lessons/new');
             $this->assertResponseOk();
         }
     }
@@ -67,12 +66,12 @@ class CourseControllerTest extends AbstractTest
         $client = self::getClient();
         $courses = self::getEntityManager()->getRepository(Course::class)->findAll();
         foreach ($courses as $course) {
-            # детальная страница
-            $client->request('POST', '/courses/' . $course->getId() . '/edit');
+            // детальная страница
+            $client->request('POST', '/courses/'.$course->getId().'/edit');
             $this->assertResponseOk();
 
-            # страница добавления урока
-            $client->request('POST', '/courses/' . $course->getId() . '/lessons/new');
+            // страница добавления урока
+            $client->request('POST', '/courses/'.$course->getId().'/lessons/new');
             $this->assertResponseOk();
         }
     }
@@ -90,7 +89,7 @@ class CourseControllerTest extends AbstractTest
         $client = self::getClient();
         $courses = self::getEntityManager()->getRepository(Course::class)->findAll();
         foreach ($courses as $course) {
-            $crawler = $client->request('GET', '/courses/' . $course->getId());
+            $crawler = $client->request('GET', '/courses/'.$course->getId());
             $lessonsCount = count($course->getLessons());
             self::assertCount($lessonsCount, $crawler->filter('.list-group-item'));
         }
@@ -98,17 +97,17 @@ class CourseControllerTest extends AbstractTest
 
     public function testSuccessfulCourseCreating(): void
     {
-        # на странице списка курсов
+        // на странице списка курсов
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
-        # кликнули на ссылку для перехода к созданию курса
+        // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
-        # заполнили форму и отправили
+        // заполнили форму и отправили
         $submitBtn = $crawler->selectButton('Сохранить');
         $courseCreatingForm = $submitBtn->form([
             'course[code]' => 'CODE',
@@ -117,34 +116,34 @@ class CourseControllerTest extends AbstractTest
         ]);
         $client->submit($courseCreatingForm);
 
-        # нашли этот курс в БД и проверили, что редирект на его страницу
+        // нашли этот курс в БД и проверили, что редирект на его страницу
         $course = self::getEntityManager()->getRepository(Course::class)->findOneBy([
-            'code' => 'CODE'
+            'code' => 'CODE',
         ]);
-        self::assertSame($client->getResponse()->headers->get('location'), '/courses/' . $course->getId());
+        self::assertSame($client->getResponse()->headers->get('location'), '/courses/'.$course->getId());
         $crawler = $client->followRedirect();
         $this->assertResponseOk();
 
-        # проверяем, что данные переданные верно отображаются на странице
+        // проверяем, что данные переданные верно отображаются на странице
         $this->assertSame($crawler->filter('.course-name')->text(), $course->getName());
         $this->assertSame($crawler->filter('.course-description')->text(), $course->getDescription());
     }
 
     public function testCourseCreatingWithEmptyCode(): void
     {
-        # на странице списка курсов
+        // на странице списка курсов
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
-        # кликнули на ссылку для перехода к созданию курса
+        // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
         $submitBtn = $crawler->selectButton('Сохранить');
 
-        # заполнили форму и отправили с пустым кодом
+        // заполнили форму и отправили с пустым кодом
         $courseCreatingForm = $submitBtn->form([
             'course[code]' => '      ',
             'course[name]' => 'Test name',
@@ -156,19 +155,19 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseCreatingWithEmptyName(): void
     {
-        # на странице списка курсов
+        // на странице списка курсов
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
-        # кликнули на ссылку для перехода к созданию курса
+        // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
         $submitBtn = $crawler->selectButton('Сохранить');
 
-        # заполнили форму и отправили с пустым названием
+        // заполнили форму и отправили с пустым названием
         $courseCreatingForm = $submitBtn->form([
             'course[code]' => 'PHP-TEST',
             'course[name]' => '      ',
@@ -180,17 +179,17 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseCreatingWithNotUniqueCode(): void
     {
-        # на странице списка курсов
+        // на странице списка курсов
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
-        # кликнули на ссылку для перехода к созданию курса
+        // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
-        # заполнили форму и отправили с не уникальным кодом
+        // заполнили форму и отправили с не уникальным кодом
         $submitBtn = $crawler->selectButton('Сохранить');
         $courseCreatingForm = $submitBtn->form([
             'course[code]' => 'PHP-1',
@@ -203,12 +202,12 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseCreatingWithTooLongName(): void
     {
-        # на странице списка курсов
+        // на странице списка курсов
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
-        # кликнули на ссылку для перехода к созданию курса
+        // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
         $crawler = $client->click($link);
         $this->assertResponseOk();
@@ -217,7 +216,7 @@ class CourseControllerTest extends AbstractTest
 
         $loremIpsum = new LoremIpsum();
 
-        # заполнили форму и отправили с длиной названия более 255 символов
+        // заполнили форму и отправили с длиной названия более 255 символов
         $courseCreatingForm = $submitBtn->form([
             'course[code]' => 'TEST',
             'course[name]' => $loremIpsum->words(50),
@@ -229,12 +228,12 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseCreatingWithTooLongDescription(): void
     {
-        # на странице списка курсов
+        // на странице списка курсов
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
-        # кликнули на ссылку для перехода к созданию курса
+        // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
         $crawler = $client->click($link);
         $this->assertResponseOk();
@@ -243,7 +242,7 @@ class CourseControllerTest extends AbstractTest
 
         $loremIpsum = new LoremIpsum();
 
-        # заполнили форму и отправили с длиной описания более 1000 символов
+        // заполнили форму и отправили с длиной описания более 1000 символов
         $courseCreatingForm = $submitBtn->form([
             'course[code]' => 'TEST',
             'course[name]' => 'Test name',
@@ -255,7 +254,7 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseEditing(): void
     {
-        # на странице списка курсов
+        // на странице списка курсов
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -264,14 +263,14 @@ class CourseControllerTest extends AbstractTest
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
-        # на детальной странице курса
+        // на детальной странице курса
         $link = $crawler->filter('.app_course_edit')->link();
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
         $submitButton = $crawler->selectButton('Обновить');
         $form = $submitButton->form();
-        # сохраняем id редактируемого курса
+        // сохраняем id редактируемого курса
         $courseId = self::getEntityManager()
             ->getRepository(Course::class)
             ->findOneBy(['code' => $form['course[code]']->getValue()])->getId();
@@ -279,18 +278,18 @@ class CourseControllerTest extends AbstractTest
         $form['course[name]'] = 'Edit name course';
         $form['course[description]'] = 'Edit description course';
         $client->submit($form);
-        # проверяем, что оказались на странице курса, который редактировали
-        self::assertSame($client->getResponse()->headers->get('location'), '/courses/' . $courseId);
+        // проверяем, что оказались на странице курса, который редактировали
+        self::assertSame($client->getResponse()->headers->get('location'), '/courses/'.$courseId);
         $crawler = $client->followRedirect();
         $this->assertResponseOk();
-        # проверяем, что данные изменились
+        // проверяем, что данные изменились
         $this->assertSame($crawler->filter('.course-name')->text(), 'Edit name course');
         $this->assertSame($crawler->filter('.course-description')->text(), 'Edit description course');
     }
 
     public function testCourseDeleting(): void
     {
-        # на странице списка курсов
+        // на странице списка курсов
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -306,7 +305,7 @@ class CourseControllerTest extends AbstractTest
         $crawler = $client->followRedirect();
 
         $coursesCountAfterDelete = count(self::getEntityManager()->getRepository(Course::class)->findAll());
-        # проверка, что кол-во курсов было уменьшено в БД и на странице соответственно
+        // проверка, что кол-во курсов было уменьшено в БД и на странице соответственно
         self::assertSame($coursesCount - 1, $coursesCountAfterDelete);
         self::assertCount($coursesCountAfterDelete, $crawler->filter('.course'));
     }

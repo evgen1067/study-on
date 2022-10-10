@@ -20,22 +20,22 @@ class CourseType extends AbstractType
                 'label' => 'Символьный код',
                 'constraints' => [
                     new NotBlank(message: 'Символьный код не может быть пустым'),
-                    new Length(max: 255, maxMessage: 'Символьный код должен быть не более 255 символов')
-                ]
+                    new Length(max: 255, maxMessage: 'Символьный код должен быть не более 255 символов'),
+                ],
             ])
             ->add('name', TextType::class, [
                 'label' => 'Название',
                 'constraints' => [
                     new NotBlank(message: 'Название не может быть пустым'),
-                    new Length(max: 255, maxMessage: 'Название должно быть не более 255 символов')
-                ]
+                    new Length(max: 255, maxMessage: 'Название должно быть не более 255 символов'),
+                ],
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Описание',
                 'required' => false,
                 'constraints' => [
-                    new Length(max: 1000, maxMessage: 'Описание должно быть не более 1000 символов')
-                ]
+                    new Length(max: 1000, maxMessage: 'Описание должно быть не более 1000 символов'),
+                ],
             ])
         ;
     }

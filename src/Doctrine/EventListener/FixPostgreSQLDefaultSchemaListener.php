@@ -12,8 +12,6 @@ use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 final class FixPostgreSQLDefaultSchemaListener
 {
     /**
-     * @param GenerateSchemaEventArgs $args
-     * @return void
      * @throws Exception
      * @throws SchemaException
      */
