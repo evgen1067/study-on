@@ -33,7 +33,9 @@ class LessonController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $lessonRepository->save($lesson, true);
 
-            return $this->redirectToRoute('app_lesson_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_course_show', [
+                'id' => $lesson->getCourse()->getId()
+            ], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('lesson/edit.html.twig', [

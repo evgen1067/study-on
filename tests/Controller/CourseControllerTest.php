@@ -71,7 +71,7 @@ class CourseControllerTest extends AbstractTest
             $client->request('POST', '/courses/' . $course->getId() . '/edit');
             $this->assertResponseOk();
 
-            # страница редактирования
+            # страница добавления урока
             $client->request('POST', '/courses/' . $course->getId() . '/lessons/new');
             $this->assertResponseOk();
         }
@@ -130,6 +130,54 @@ class CourseControllerTest extends AbstractTest
         $this->assertSame($crawler->filter('.course-description')->text(), $course->getDescription());
     }
 
+    public function testCourseCreatingWithEmptyCode(): void
+    {
+        # на странице списка курсов
+        $client = self::getClient();
+        $crawler = $client->request('GET', '/courses/');
+        $this->assertResponseOk();
+
+        # кликнули на ссылку для перехода к созданию курса
+        $link = $crawler->filter('.app_course_new')->link();
+        $crawler = $client->click($link);
+        $this->assertResponseOk();
+
+        $submitBtn = $crawler->selectButton('Сохранить');
+
+        # заполнили форму и отправили с пустым кодом
+        $courseCreatingForm = $submitBtn->form([
+            'course[code]' => '      ',
+            'course[name]' => 'Test name',
+            'course[description]' => 'Test description',
+        ]);
+        $client->submit($courseCreatingForm);
+        self::assertSelectorTextContains('.invalid-feedback.d-block', 'Символьный код не может быть пустым');
+    }
+
+    public function testCourseCreatingWithEmptyName(): void
+    {
+        # на странице списка курсов
+        $client = self::getClient();
+        $crawler = $client->request('GET', '/courses/');
+        $this->assertResponseOk();
+
+        # кликнули на ссылку для перехода к созданию курса
+        $link = $crawler->filter('.app_course_new')->link();
+        $crawler = $client->click($link);
+        $this->assertResponseOk();
+
+        $submitBtn = $crawler->selectButton('Сохранить');
+
+        # заполнили форму и отправили с пустым названием
+        $courseCreatingForm = $submitBtn->form([
+            'course[code]' => 'PHP-TEST',
+            'course[name]' => '      ',
+            'course[description]' => 'Test description',
+        ]);
+        $client->submit($courseCreatingForm);
+        self::assertSelectorTextContains('.invalid-feedback.d-block', 'Название не может быть пустым');
+    }
+
     public function testCourseCreatingWithNotUniqueCode(): void
     {
         # на странице списка курсов
@@ -177,15 +225,6 @@ class CourseControllerTest extends AbstractTest
         ]);
         $client->submit($courseCreatingForm);
         self::assertSelectorTextContains('.invalid-feedback.d-block', 'Название должно быть не более 255 символов');
-
-        # заполнили форму и отправили с длиной описания более 1000 символов
-        $courseCreatingForm = $submitBtn->form([
-            'course[code]' => 'TEST',
-            'course[name]' => 'Test name',
-            'course[description]' => $loremIpsum->words(200),
-        ]);
-        $client->submit($courseCreatingForm);
-        self::assertSelectorTextContains('.invalid-feedback.d-block', 'Описание должно быть не более 1000 символов');
     }
 
     public function testCourseCreatingWithTooLongDescription(): void
