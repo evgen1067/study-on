@@ -13,8 +13,13 @@
         {% endblock %}
     </head>
     <body class="bg-white">
-        <div class="container">
-            {% block body %}{% endblock %}
+        <div class="container-fluid">
+            {% include 'layout/navbar.html.twig' %}
+            <div class="container">
+                <div class="offset-1 col-11">
+                    {% block body %}{% endblock %}
+                </div>
+            </div>
         </div>
     </body>
 </html>

@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Dto\Response\UserAuthDto;
+use App\Dto\Response\UserCurrentDto;
 use App\Exception\BillingUnavailableException;
 use App\Security\User;
 use JMS\Serializer\SerializerInterface;
@@ -10,40 +11,33 @@ use JsonException;
 
 class BillingClient
 {
-    private string $billingUrl;
-
     private SerializerInterface $serializer;
 
     public function __construct(SerializerInterface $serializer)
     {
-        $this->billingUrl = $_ENV['BILLING_URL'];
         $this->serializer = $serializer;
     }
 
     /**
+     * @param $credentials
+     *
      * @throws BillingUnavailableException
      * @throws JsonException
      */
     public function auth($credentials): User
     {
-        $query = curl_init($this->billingUrl.'/api/v1/auth');
-        $options = [
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $credentials,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Content-Length: '.strlen($credentials),
+        $api = new ApiService(
+            '/api/v1/auth',
+            'POST',
+            $credentials,
+            null,
+            [
+                    'Accept: application/json',
+                    'Content-Type: application/json',
             ],
-        ];
-        curl_setopt_array($query, $options);
-        $response = curl_exec($query);
-
-        // выбрасываем исключение, что сервис недоступен
-        if (false === $response) {
-            throw new BillingUnavailableException('Сервис временно недоступен.');
-        }
-        curl_close($query);
+            'Сервис временно недоступен.'
+        );
+        $response = $api->execute();
 
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
 
@@ -55,5 +49,35 @@ class BillingClient
         $userDto = $this->serializer->deserialize($response, UserAuthDto::class, 'json');
 
         return User::fromDto($userDto);
+    }
+
+    /**
+     * @param $token
+     *
+     * @throws BillingUnavailableException|JsonException
+     *
+     * @return mixed
+     */
+    public function currentUser($token): UserCurrentDto
+    {
+        $api = new ApiService(
+            '/api/v1/users/current',
+            'GET',
+            null,
+            null,
+            [
+                'Authorization: Bearer '.$token,
+                'accept: application/json',
+            ],
+            'Сервис временно недоступен.'
+        );
+        $response = $api->execute();
+
+        $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+        if (isset($result['message'])) {
+            throw new BillingUnavailableException(json_encode($result['message'], JSON_THROW_ON_ERROR));
+        }
+
+        return $this->serializer->deserialize($response, UserCurrentDto::class, 'json');
     }
 }
