@@ -40,11 +40,6 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @param Request $request
-     * @param UserAuthenticatorInterface $authenticator
-     * @param BillingAuthenticator $formAuthenticator
-     * @param BillingClient $billingClient
-     * @return RedirectResponse|Response|null
      * @throws JsonException
      */
     #[Route(path: '/register', name: 'app_register')]
@@ -53,8 +48,7 @@ class SecurityController extends AbstractController
         UserAuthenticatorInterface $authenticator,
         BillingAuthenticator $formAuthenticator,
         BillingClient $billingClient
-    ): RedirectResponse|Response|null
-    {
+    ): RedirectResponse|Response|null {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_profile');
         }
@@ -72,7 +66,7 @@ class SecurityController extends AbstractController
                     'form' => $form->createView(),
                     'errors' => $e->getMessage(),
                 ]);
-            } catch(BillingException $e) {
+            } catch (BillingException $e) {
                 // throw new BillingException($e->getMessage());
                 return $this->render('security/register.html.twig', [
                     'form' => $form->createView(),
@@ -82,6 +76,7 @@ class SecurityController extends AbstractController
 
             return $authenticator->authenticateUser($user, $formAuthenticator, $request);
         }
+
         return $this->render('security/register.html.twig', [
             'form' => $form->createView(),
         ]);

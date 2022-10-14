@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Dto\Response\UserCurrentDto;
 use App\Dto\TokenDto;
 use App\Dto\UserDto;
 use App\Exception\BillingException;
@@ -78,6 +77,7 @@ class BillingClient
             if (403 === $result['code']) {
                 throw new BillingException($result['error']);
             }
+
             throw new BillingUnavailableException('Сервис временно недоступен.');
         }
 
@@ -88,7 +88,7 @@ class BillingClient
 
     /**
      * @param $token
-     * @return UserDto
+     *
      * @throws BillingUnavailableException
      * @throws JsonException
      * @throws BillingException

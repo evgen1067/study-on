@@ -21,8 +21,8 @@ class RegisterType extends AbstractType
                 'label' => 'Email',
                 'constraints' => [
                     new NotBlank(message: 'Email не может быть пустым.'),
-                    new Email(message: 'Укажите email в правильном формате.')
-                ]
+                    new Email(message: 'Укажите email в правильном формате.'),
+                ],
             ])
             ->add('password', RepeatedType::class, [
                 'type' => PasswordType::class,
@@ -32,14 +32,13 @@ class RegisterType extends AbstractType
                     new NotBlank(message: 'Пароль не может быть пустым.'),
                     new Length(min: 6, minMessage: 'Ваш пароль должен быть не менее {{ limit }} символов.'),
                 ],
-                'first_options'  => [
+                'first_options' => [
                     'label' => 'Пароль',
                 ],
                 'second_options' => [
                     'label' => 'Повторите пароль',
                 ],
             ]);
-        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

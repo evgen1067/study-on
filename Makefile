@@ -36,4 +36,10 @@ encore_prod:
 phpunit:
 	@${PHP} bin/phpunit --testdox
 
+fix_src:
+	vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src
+
+fix_tests:
+	vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix tests
+
 -include local.mk

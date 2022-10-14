@@ -12,9 +12,9 @@ class UserDto
     #[Serializer\Type('string')]
     public string $password;
 
-    #[Serializer\Type("array")]
+    #[Serializer\Type('array')]
     public array $roles;
 
-    #[Serializer\Type("float")]
+    #[Serializer\Type('float')]
     public float $balance;
 }

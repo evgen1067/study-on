@@ -23,8 +23,6 @@ class ProfileController extends AbstractController
     }
 
     /**
-     * @param BillingClient $billingClient
-     * @return Response
      * @throws BillingUnavailableException
      * @throws JsonException
      * @throws BillingException
