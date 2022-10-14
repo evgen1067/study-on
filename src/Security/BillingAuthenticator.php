@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Exception\BillingException;
 use App\Exception\BillingUnavailableException;
 use App\Service\BillingClient;
 use JsonException;
@@ -53,8 +54,8 @@ class BillingAuthenticator extends AbstractLoginFormAuthenticator
             new UserBadge($credentials, function ($credentials) {
                 try {
                     return $this->billingClient->auth($credentials);
-                } catch (BillingUnavailableException $unavailableException) {
-                    throw new CustomUserMessageAuthenticationException($unavailableException->getMessage());
+                } catch (BillingException|BillingUnavailableException $exception) {
+                    throw new CustomUserMessageAuthenticationException($exception->getMessage());
                 }
             }),
             [

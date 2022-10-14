@@ -1,17 +1,20 @@
 <?php
 
-namespace App\Dto\Response;
+namespace App\Dto;
 
 use JMS\Serializer\Annotation as Serializer;
 
-class UserCurrentDto
+class UserDto
 {
     #[Serializer\Type('string')]
     public string $username;
 
-    #[Serializer\Type('array')]
+    #[Serializer\Type('string')]
+    public string $password;
+
+    #[Serializer\Type("array")]
     public array $roles;
 
-    #[Serializer\Type('float')]
+    #[Serializer\Type("float")]
     public float $balance;
 }

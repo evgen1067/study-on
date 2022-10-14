@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Dto\Response;
+namespace App\Dto;
 
 use JMS\Serializer\Annotation as Serializer;
 
-class UserAuthDto
+class TokenDto
 {
     #[Serializer\Type('string')]
     public string $token;

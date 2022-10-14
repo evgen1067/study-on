@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exception\BillingException;
 use App\Exception\BillingUnavailableException;
 use App\Service\BillingClient;
 use JsonException;
@@ -12,7 +13,7 @@ use Symfony\Component\Security\Core\Security;
 
 class ProfileController extends AbstractController
 {
-    private $security;
+    private Security $security;
 
     public function __construct(Security $security)
     {
@@ -22,18 +23,21 @@ class ProfileController extends AbstractController
     }
 
     /**
+     * @param BillingClient $billingClient
+     * @return Response
      * @throws BillingUnavailableException
      * @throws JsonException
+     * @throws BillingException
      */
     #[Route('/profile', name: 'app_profile')]
     public function index(BillingClient $billingClient): Response
     {
-        $current = $billingClient->currentUser($this->security->getUser()->getApiToken());
+        $dto = $billingClient->currentUser($this->security->getUser()->getApiToken());
 
         return $this->render('profile/index.html.twig', [
-            'email' => $current->username,
-            'role' => in_array('ROLE_SUPER_ADMIN', $current->roles, true) ? 'Администратор' : 'Пользователь',
-            'balance' => $current->balance,
+            'email' => $dto->username,
+            'role' => in_array('ROLE_SUPER_ADMIN', $dto->roles, true) ? 'Администратор' : 'Пользователь',
+            'balance' => $dto->balance,
         ]);
     }
 }

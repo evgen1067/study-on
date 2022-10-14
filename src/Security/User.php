@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Dto\Response\UserAuthDto;
+use App\Dto\TokenDto;
 use App\Service\JwtDecoder;
 use JsonException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -20,7 +20,7 @@ class User implements UserInterface
     /**
      * @throws JsonException
      */
-    public static function fromDto(UserAuthDto $dto): self
+    public static function fromDto(TokenDto $dto): self
     {
         $user = new self();
 
