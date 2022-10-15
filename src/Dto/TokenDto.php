@@ -8,4 +8,7 @@ class TokenDto
 {
     #[Serializer\Type('string')]
     public string $token;
+
+    #[Serializer\Type('string')]
+    public string $refresh_token;
 }

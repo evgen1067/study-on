@@ -15,6 +15,8 @@ class User implements UserInterface
 
     private ?string $apiToken = null;
 
+    private ?string $refreshToken = null;
+
     private ?string $password = null;
 
     /**
@@ -28,6 +30,8 @@ class User implements UserInterface
         $jwtDecode->decode($dto->token);
 
         $user->setApiToken($dto->token);
+        $user->setRefreshToken($dto->refresh_token);
+
         $user->setRoles($jwtDecode->getRoles());
         $user->setEmail($jwtDecode->getUsername());
 
@@ -42,6 +46,16 @@ class User implements UserInterface
     public function setApiToken(string $apiToken): void
     {
         $this->apiToken = $apiToken;
+    }
+
+    public function getRefreshToken(): ?string
+    {
+        return $this->refreshToken;
+    }
+
+    public function setRefreshToken(string $refreshToken): void
+    {
+        $this->refreshToken = $refreshToken;
     }
 
     public function getPassword(): ?string

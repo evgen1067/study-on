@@ -10,6 +10,8 @@ class JwtDecoder
 
     private array $roles;
 
+    private int $exp;
+
     public function getUsername(): string
     {
         return $this->username;
@@ -20,6 +22,11 @@ class JwtDecoder
         return $this->roles;
     }
 
+    public function getExp(): int
+    {
+        return $this->exp;
+    }
+
     /**
      * @throws JsonException
      */
@@ -27,7 +34,7 @@ class JwtDecoder
     {
         $parts = explode('.', $token);
         $payload = json_decode(base64_decode($parts[1]), true, 512, JSON_THROW_ON_ERROR);
-
+        $this->exp = $payload['exp'];
         $this->username = $payload['email'];
         $this->roles = $payload['roles'];
     }

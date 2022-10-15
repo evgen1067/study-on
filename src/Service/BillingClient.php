@@ -75,7 +75,7 @@ class BillingClient
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
         if (isset($result['code'])) {
             if (403 === $result['code']) {
-                throw new BillingException($result['error']);
+                throw new BillingException($result['message']);
             }
 
             throw new BillingUnavailableException('Сервис временно недоступен.');
@@ -88,10 +88,10 @@ class BillingClient
 
     /**
      * @param $token
-     *
+     * @return UserDto
+     * @throws BillingException
      * @throws BillingUnavailableException
      * @throws JsonException
-     * @throws BillingException
      */
     public function currentUser($token): UserDto
     {
@@ -114,5 +114,32 @@ class BillingClient
         }
 
         return $this->serializer->deserialize($response, UserDto::class, 'json');
+    }
+
+    /**
+     * @throws BillingUnavailableException
+     * @throws BillingException
+     * @throws JsonException
+     */
+    public function refreshToken($data)
+    {
+        $api = new ApiService(
+            '/api/v1/token/refresh',
+            'POST',
+            $data,
+            null,
+            [
+                'Accept: application/json',
+                'Content-Type: application/json',
+            ],
+            'Сервис биллинга недоступен.');
+        $response = $api->execute();
+
+        $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+        if (isset($result['errors'])) {
+            throw new BillingException(json_encode($result['errors'], JSON_THROW_ON_ERROR));
+        }
+
+        return $this->serializer->deserialize($response, 'array', 'json');
     }
 }
