@@ -110,7 +110,7 @@ class BillingClient
 
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
         if (isset($result['message'])) {
-            throw new BillingException(json_encode($result['message'], JSON_THROW_ON_ERROR));
+            throw new BillingException($result['message']);
         }
 
         return $this->serializer->deserialize($response, UserDto::class, 'json');
@@ -136,8 +136,180 @@ class BillingClient
         $response = $api->execute();
 
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
-        if (isset($result['errors'])) {
-            throw new BillingException(json_encode($result['errors'], JSON_THROW_ON_ERROR));
+        if (isset($result['message'])) {
+            throw new BillingException($result['message']);
+        }
+
+        return $this->serializer->deserialize($response, 'array', 'json');
+    }
+
+    /**
+     * @return mixed
+     * @throws BillingException
+     * @throws BillingUnavailableException
+     * @throws JsonException
+     */
+    public function getCourses(): mixed
+    {
+        $api = new ApiService(
+            '/api/v1/courses',
+            'GET',
+            null,
+            null,
+            [
+                'accept: application/json',
+            ],
+            'Сервис временно недоступен.'
+        );
+        $response = $api->execute();
+        $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+        if (isset($result['message'])) {
+            throw new BillingException($result['message']);
+        }
+
+        return $this->serializer->deserialize($response, 'array', 'json');
+    }
+
+    /**
+     * @param string $courseCode
+     * @return mixed
+     * @throws BillingException
+     * @throws BillingUnavailableException
+     * @throws JsonException
+     */
+    public function getCourse(string $courseCode): mixed
+    {
+        $api = new ApiService(
+            '/api/v1/courses/' . $courseCode,
+            'GET',
+            null,
+            null,
+            [
+                'accept: application/json',
+            ],
+            'Сервис биллинга недоступен.');
+        $response = $api->execute();
+
+        $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+        if (isset($result['message'])) {
+            throw new BillingException($result['message']);
+        }
+
+        return $this->serializer->deserialize($response, 'array', 'json');
+    }
+
+    /**
+     * @throws BillingUnavailableException
+     * @throws BillingException
+     * @throws JsonException
+     */
+    public function getTransactions($filters, $token)
+    {
+        $api = new ApiService(
+            '/api/v1/transactions',
+            'GET',
+            null,
+            $filters,
+            [
+                'accept: application/json',
+                'Authorization: Bearer ' . $token
+            ],
+            'Сервис биллинга недоступен.');
+        $response = $api->execute();
+        $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+        if (isset($result['message'])) {
+            throw new BillingException($result['message']);
+        }
+
+        return $this->serializer->deserialize($response, 'array', 'json');
+    }
+
+    /**
+     * @param $courseCode
+     * @param $token
+     * @return mixed
+     * @throws BillingException
+     * @throws BillingUnavailableException
+     * @throws JsonException
+     */
+    public function pay($courseCode, $token)
+    {
+        $api = new ApiService(
+            '/api/v1/courses/' . $courseCode . '/pay',
+            'POST',
+            null,
+            null,
+            [
+                'accept: application/json',
+                'Authorization: Bearer ' . $token
+            ],
+            'Сервис биллинга недоступен.');
+        $response = $api->execute();
+
+        $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+        if (isset($result['message'])) {
+            throw new BillingException($result['message']);
+        }
+
+        return $this->serializer->deserialize($response, 'array', 'json');
+    }
+
+    /**
+     * @param $courseData
+     * @param $token
+     * @return mixed
+     * @throws BillingException
+     * @throws BillingUnavailableException
+     * @throws JsonException
+     */
+    public function newCourse($courseData, $token)
+    {
+        $api = new ApiService(
+            '/api/v1/courses/new',
+            'POST',
+            $courseData,
+            null,
+            [
+                'accept: application/json',
+                'Authorization: Bearer ' . $token
+            ],
+            'Сервис биллинга недоступен.');
+        $response = $api->execute();
+
+        $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+        if (isset($result['message'])) {
+            throw new BillingException($result['message']);
+        }
+
+        return $this->serializer->deserialize($response, 'array', 'json');
+    }
+
+    /**
+     * @param $oldCourseCode
+     * @param $courseData
+     * @param $token
+     * @return mixed
+     * @throws BillingException
+     * @throws BillingUnavailableException
+     * @throws JsonException
+     */
+    public function editCourse($oldCourseCode, $courseData, $token)
+    {
+        $api = new ApiService(
+            '/api/v1/courses/' . $oldCourseCode . '/edit',
+            'POST',
+            $courseData,
+            null,
+            [
+                'accept: application/json',
+                'Authorization: Bearer ' . $token
+            ],
+            'Сервис биллинга недоступен.');
+        $response = $api->execute();
+
+        $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+        if (isset($result['message'])) {
+            throw new BillingException($result['message']);
         }
 
         return $this->serializer->deserialize($response, 'array', 'json');

@@ -8,6 +8,7 @@ use App\Exception\BillingUnavailableException;
 use App\Form\RegisterType;
 use App\Security\BillingAuthenticator;
 use App\Service\BillingClient;
+use App\Service\Notification;
 use JsonException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -60,17 +61,10 @@ class SecurityController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $user = $billingClient->register(json_encode($userDto, JSON_THROW_ON_ERROR));
-            } catch (BillingUnavailableException $e) {
-                // throw new BillingUnavailableException($e->getMessage());
+            } catch (BillingUnavailableException|BillingException $e) {
+                $this->addFlash('error', $e->getMessage());
                 return $this->render('security/register.html.twig', [
                     'form' => $form->createView(),
-                    'errors' => $e->getMessage(),
-                ]);
-            } catch (BillingException $e) {
-                // throw new BillingException($e->getMessage());
-                return $this->render('security/register.html.twig', [
-                    'form' => $form->createView(),
-                    'errors' => $e->getMessage(),
                 ]);
             }
 

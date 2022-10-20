@@ -20,8 +20,7 @@ security:
                 target: app_course_index
             remember_me:
                 secret: '%kernel.secret%' # required
-                lifetime: 604800 # 1 week in seconds
-                always_remember_me: true
+                lifetime: 3600
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -37,8 +36,8 @@ security:
         - { path: ^/logout, roles: [IS_AUTHENTICATED_FULLY] }
         - { path: ^/profile, roles: [IS_AUTHENTICATED_FULLY] }
         - { path: ^/(courses|lessons)/\d+$, methods: [ POST ], roles: [ ROLE_SUPER_ADMIN ] }
+        - { path: ^/courses/new, roles: [ ROLE_SUPER_ADMIN ] }
         - { path: ^/lessons/\d+$, roles: [ROLE_USER] }
-        - { path: ^/courses/new, roles: [ROLE_SUPER_ADMIN] }
         - { path: ^/(courses|lessons)/\d+/edit$, roles: [ROLE_SUPER_ADMIN] }
         - { path: ^/courses/\d+/lessons/new$, roles: [ROLE_SUPER_ADMIN] }
 when@test:

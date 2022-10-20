@@ -7,5 +7,7 @@
 
     {{ include('lesson/_form.html.twig') }}
 
-    <a class="btn btn-secondary mb-3 w-100" href="{{ path('app_course_show', { 'id' : course.id }) }}">Обратно к курсу</a>
+    <a class="btn btn-secondary mb-3 w-100" href="{{ path('app_course_show', { 'id' : course.id }) }}">
+        Обратно к курсу
+    </a>
 {% endblock %}

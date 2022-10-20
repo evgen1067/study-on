@@ -7,6 +7,7 @@ use App\Service\BillingClient;
 use App\Service\JwtDecoder;
 use DateTime;
 use Exception;
+use JMS\Serializer\Serializer;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -63,9 +64,10 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
 
         if ($currentTime >= $exp) {
             try {
-                $refresh = $this->billingClient->refreshToken([
+                $data = json_encode([
                     'refresh_token' => $user->getRefreshToken()
-                ]);
+                ], JSON_THROW_ON_ERROR);
+                $refresh = json_decode($this->billingClient->refreshToken($data), true, 512, JSON_THROW_ON_ERROR);
                 $user->setApiToken($refresh['token']);
                 $user->setRefreshToken($refresh['refresh_token']);
             } catch (BillingUnavailableException $e) {
