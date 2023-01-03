@@ -67,6 +67,55 @@ class SecurityControllerTest extends AbstractTest
         self::assertSelectorTextContains('.alert.alert-danger', 'Ошибка авторизации. Проверьте правильность введенных данных!');
     }
 
+    public function testRegisterWithValidCredentials(): void
+    {
+        $client = $this->billingClient();
+        $crawler = $client->request('GET', '/');
+        $this->assertResponseOk();
+
+        $link = $crawler->selectLink('Регистрация')->link();
+        $crawler = $client->click($link);
+        $this->assertResponseOk();
+
+        $submitBtn = $crawler->selectButton('Сохранить');
+        $login = $submitBtn->form([
+            'register[username]' => 'magic@study-on.ru',
+            'register[password][first]' => 'magic',
+            'register[password][second]' => 'magic',
+        ]);
+        $client->submit($login);
+
+        $this->assertResponseRedirect();
+        $client->followRedirect();
+        self::assertEquals('/courses/', $client->getRequest()->getPathInfo());
+    }
+
+    public function testRegisterWithInvalidCredentials(): void
+    {
+        $client = $this->billingClient();
+        $crawler = $client->request('GET', '/');
+        $this->assertResponseOk();
+
+        $link = $crawler->selectLink('Регистрация')->link();
+        $crawler = $client->click($link);
+        $this->assertResponseOk();
+
+        $submitBtn = $crawler->selectButton('Сохранить');
+        $login = $submitBtn->form([
+            'register[username]' => $this->validCredentials['username'],
+            'register[password][first]' => 'magic',
+            'register[password][second]' => 'magic',
+        ]);
+        $client->submit($login);
+
+        $this->assertResponseRedirect();
+        $client->followRedirect();
+        self::assertSelectorTextContains(
+            '.notification.vue-notification.error',
+            'Ошибка авторизации. Проверьте правильность введенных данных!'
+        );
+    }
+
     private function billingClient()
     {
         self::getClient()->disableReboot();
