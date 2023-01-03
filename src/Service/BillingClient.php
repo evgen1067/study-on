@@ -88,7 +88,7 @@ class BillingClient
 
     /**
      * @param $token
-     * @return UserDto
+     *
      * @throws BillingException
      * @throws BillingUnavailableException
      * @throws JsonException
@@ -132,7 +132,8 @@ class BillingClient
                 'Accept: application/json',
                 'Content-Type: application/json',
             ],
-            'Сервис биллинга недоступен.');
+            'Сервис биллинга недоступен.'
+        );
         $response = $api->execute();
 
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
@@ -144,7 +145,6 @@ class BillingClient
     }
 
     /**
-     * @return mixed
      * @throws BillingException
      * @throws BillingUnavailableException
      * @throws JsonException
@@ -171,8 +171,6 @@ class BillingClient
     }
 
     /**
-     * @param string $courseCode
-     * @return mixed
      * @throws BillingException
      * @throws BillingUnavailableException
      * @throws JsonException
@@ -180,14 +178,15 @@ class BillingClient
     public function getCourse(string $courseCode): mixed
     {
         $api = new ApiService(
-            '/api/v1/courses/' . $courseCode,
+            '/api/v1/courses/'.$courseCode,
             'GET',
             null,
             null,
             [
                 'accept: application/json',
             ],
-            'Сервис биллинга недоступен.');
+            'Сервис биллинга недоступен.'
+        );
         $response = $api->execute();
 
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
@@ -212,9 +211,10 @@ class BillingClient
             $filters,
             [
                 'accept: application/json',
-                'Authorization: Bearer ' . $token
+                'Authorization: Bearer '.$token,
             ],
-            'Сервис биллинга недоступен.');
+            'Сервис биллинга недоступен.'
+        );
         $response = $api->execute();
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
         if (isset($result['message'])) {
@@ -227,7 +227,7 @@ class BillingClient
     /**
      * @param $courseCode
      * @param $token
-     * @return mixed
+     *
      * @throws BillingException
      * @throws BillingUnavailableException
      * @throws JsonException
@@ -235,15 +235,16 @@ class BillingClient
     public function pay($courseCode, $token)
     {
         $api = new ApiService(
-            '/api/v1/courses/' . $courseCode . '/pay',
+            '/api/v1/courses/'.$courseCode.'/pay',
             'POST',
             null,
             null,
             [
                 'accept: application/json',
-                'Authorization: Bearer ' . $token
+                'Authorization: Bearer '.$token,
             ],
-            'Сервис биллинга недоступен.');
+            'Сервис биллинга недоступен.'
+        );
         $response = $api->execute();
 
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
@@ -257,7 +258,7 @@ class BillingClient
     /**
      * @param $courseData
      * @param $token
-     * @return mixed
+     *
      * @throws BillingException
      * @throws BillingUnavailableException
      * @throws JsonException
@@ -271,9 +272,10 @@ class BillingClient
             null,
             [
                 'accept: application/json',
-                'Authorization: Bearer ' . $token
+                'Authorization: Bearer '.$token,
             ],
-            'Сервис биллинга недоступен.');
+            'Сервис биллинга недоступен.'
+        );
         $response = $api->execute();
 
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
@@ -288,7 +290,7 @@ class BillingClient
      * @param $oldCourseCode
      * @param $courseData
      * @param $token
-     * @return mixed
+     *
      * @throws BillingException
      * @throws BillingUnavailableException
      * @throws JsonException
@@ -296,15 +298,16 @@ class BillingClient
     public function editCourse($oldCourseCode, $courseData, $token)
     {
         $api = new ApiService(
-            '/api/v1/courses/' . $oldCourseCode . '/edit',
+            '/api/v1/courses/'.$oldCourseCode.'/edit',
             'POST',
             $courseData,
             null,
             [
                 'accept: application/json',
-                'Authorization: Bearer ' . $token
+                'Authorization: Bearer '.$token,
             ],
-            'Сервис биллинга недоступен.');
+            'Сервис биллинга недоступен.'
+        );
         $response = $api->execute();
 
         $result = json_decode($response, true, 512, JSON_THROW_ON_ERROR);

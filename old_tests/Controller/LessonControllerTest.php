@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Tests\Controller;
+namespace old_tests\Controller;
 
 use App\DataFixtures\AppFixtures;
 use App\Entity\Course;
 use App\Entity\Lesson;
 use App\Tests\AbstractTest;
 use joshtronic\LoremIpsum;
+use function App\Tests\Controller\count;
 
 class LessonControllerTest extends AbstractTest
 {
