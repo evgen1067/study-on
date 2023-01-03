@@ -22,7 +22,7 @@ class SecurityControllerTest extends AbstractTest
         $this->serializer = self::getContainer()->get(SerializerInterface::class);
     }
 
-    public function testAuthWithValidCredentials(): void
+    public function testAuth(): void
     {
         $client = $this->billingClient();
         $crawler = $client->request('GET', '/');
@@ -40,15 +40,14 @@ class SecurityControllerTest extends AbstractTest
         $client->submit($login);
 
         $this->assertResponseRedirect();
-        $client->followRedirect();
+        $crawler = $client->followRedirect();
         self::assertEquals('/courses/', $client->getRequest()->getPathInfo());
-    }
 
-    public function testAuthWithInvalidCredentials(): void
-    {
-        $client = $this->billingClient();
-        $crawler = $client->request('GET', '/');
-        $this->assertResponseOk();
+        $link = $crawler->selectLink('Выход')->link();
+        $crawler = $client->click($link);
+
+        $this->assertResponseRedirect();
+        $crawler = $client->followRedirect();
 
         $link = $crawler->selectLink('Авторизация')->link();
         $crawler = $client->click($link);
@@ -67,7 +66,7 @@ class SecurityControllerTest extends AbstractTest
         self::assertSelectorTextContains('.alert.alert-danger', 'Ошибка авторизации. Проверьте правильность введенных данных!');
     }
 
-    public function testRegisterWithValidCredentials(): void
+    public function testRegister(): void
     {
         $client = $this->billingClient();
         $crawler = $client->request('GET', '/');
@@ -77,42 +76,40 @@ class SecurityControllerTest extends AbstractTest
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
-        $submitBtn = $crawler->selectButton('Сохранить');
-        $login = $submitBtn->form([
-            'register[username]' => 'magic@study-on.ru',
-            'register[password][first]' => 'magic',
-            'register[password][second]' => 'magic',
-        ]);
+        $login = $crawler->selectButton('Сохранить')->form();
+        $login['register[username]'] = 'magic@study-on.ru';
+        $login['register[password][first]'] = 'password';
+        $login['register[password][second]'] = 'password';
         $client->submit($login);
 
         $this->assertResponseRedirect();
-        $client->followRedirect();
+        $crawler = $client->followRedirect();
+
         self::assertEquals('/courses/', $client->getRequest()->getPathInfo());
-    }
 
-    public function testRegisterWithInvalidCredentials(): void
-    {
-        $client = $this->billingClient();
-        $crawler = $client->request('GET', '/');
-        $this->assertResponseOk();
+        $link = $crawler->selectLink('Выход')->link();
+        $crawler = $client->click($link);
+
+        $this->assertResponseRedirect();
+        $crawler = $client->followRedirect();
 
         $link = $crawler->selectLink('Регистрация')->link();
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
-        $submitBtn = $crawler->selectButton('Сохранить');
-        $login = $submitBtn->form([
-            'register[username]' => $this->validCredentials['username'],
-            'register[password][first]' => 'magic',
-            'register[password][second]' => 'magic',
-        ]);
+        $login = $crawler->selectButton('Сохранить')->form();
+        $login['register[username]'] = $this->validCredentials['username'];
+        $login['register[password][first]'] = 'password';
+        $login['register[password][second]'] = 'password';
         $client->submit($login);
 
-        $this->assertResponseRedirect();
-        $client->followRedirect();
+        $this->assertResponseOk();
+
+        self::assertEquals('/register', $client->getRequest()->getPathInfo());
+
         self::assertSelectorTextContains(
             '.notification.vue-notification.error',
-            'Ошибка авторизации. Проверьте правильность введенных данных!'
+            'Email уже используется.'
         );
     }
 

@@ -170,8 +170,9 @@ class BillingClientMock extends BillingClient
 
     public function register($data): User
     {
-        $username = $data['username'];
-        $password = $data['password'];
+        $userDto = $this->serializer->deserialize($data, UserDto::class, 'json');
+        $username = $userDto->username;
+        $password = $userDto->password;
         $tokenDto = new TokenDto();
         if ($username === $this->admin->username || $username === $this->user->username) {
             throw new BillingException('Email уже используется.');
