@@ -22,7 +22,7 @@ class SecurityControllerTest extends AbstractTest
         $this->serializer = self::getContainer()->get(SerializerInterface::class);
     }
 
-    public function testAuth(): void
+    public function testAuthAndLogout(): void
     {
         $client = $this->billingClient();
         $crawler = $client->request('GET', '/');
@@ -63,10 +63,13 @@ class SecurityControllerTest extends AbstractTest
         $this->assertResponseRedirect();
         $crawler = $client->followRedirect();
 
-        self::assertSelectorTextContains('.alert.alert-danger', 'Ошибка авторизации. Проверьте правильность введенных данных!');
+        self::assertSelectorTextContains(
+            '.alert.alert-danger',
+            'Ошибка авторизации. Проверьте правильность введенных данных!'
+        );
     }
 
-    public function testRegister(): void
+    public function testRegisterAndLogout(): void
     {
         $client = $this->billingClient();
         $crawler = $client->request('GET', '/');
@@ -76,10 +79,11 @@ class SecurityControllerTest extends AbstractTest
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
-        $login = $crawler->selectButton('Сохранить')->form();
-        $login['register[username]'] = 'magic@study-on.ru';
-        $login['register[password][first]'] = 'password';
-        $login['register[password][second]'] = 'password';
+        $login = $crawler->selectButton('Сохранить')->form([
+            'register[username]' => 'magic@study-on.ru',
+            'register[password][first]' => 'password',
+            'register[password][second]' => 'password',
+        ]);
         $client->submit($login);
 
         $this->assertResponseRedirect();
@@ -97,10 +101,11 @@ class SecurityControllerTest extends AbstractTest
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
-        $login = $crawler->selectButton('Сохранить')->form();
-        $login['register[username]'] = $this->validCredentials['username'];
-        $login['register[password][first]'] = 'password';
-        $login['register[password][second]'] = 'password';
+        $login = $crawler->selectButton('Сохранить')->form([
+            'register[username]' => $this->validCredentials['username'],
+            'register[password][first]' => 'password',
+            'register[password][second]' => 'password',
+        ]);
         $client->submit($login);
 
         $this->assertResponseOk();

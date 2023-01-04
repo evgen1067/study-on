@@ -9,12 +9,17 @@ use App\Security\User;
 use App\Service\BillingClient;
 use DateTimeImmutable;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 
 class BillingClientMock extends BillingClient
 {
     private UserDto $user;
 
     private UserDto $admin;
+
+    private array $courses;
+
+    private array $transactions;
 
     public function __construct(SerializerInterface $serializer)
     {
@@ -32,7 +37,7 @@ class BillingClientMock extends BillingClient
         $this->admin->roles = ['ROLE_SUPER_ADMIN', 'ROLE_USER'];
         $this->admin->balance = 5000.0 + 2000.0;
 
-        $courses = [
+        $this->courses = [
             [
                 'code' => 'PHP-1',
                 'type' => 1,
@@ -65,7 +70,7 @@ class BillingClientMock extends BillingClient
             ],
         ];
 
-        $transactions = [
+        $this->transactions = [
             // deposit
             [
                 'type' => 2,
@@ -82,65 +87,65 @@ class BillingClientMock extends BillingClient
             // buy
             [
                 'type' => 1,
-                'amount' => $courses[3]['price'],
-                'course' => $courses[3],
+                'amount' => $this->courses[3]['price'],
+                'course' => $this->courses[3],
                 'customer' => $this->user,
                 'created' => new DateTimeImmutable('2022-10-08 00:00:00'),
             ],
             [
                 'type' => 1,
-                'amount' => $courses[4]['price'],
-                'course' => $courses[4],
+                'amount' => $this->courses[4]['price'],
+                'course' => $this->courses[4],
                 'customer' => $this->admin,
                 'created' => new DateTimeImmutable('2022-10-10 00:00:00'),
             ],
             // rent - expires
             [
                 'type' => 1,
-                'amount' => $courses[0]['price'],
+                'amount' => $this->courses[0]['price'],
                 'expires' => new \DateTimeImmutable('2024-09-27 00:00:00'),
-                'course' => $courses[0],
+                'course' => $this->courses[0],
                 'customer' => $this->user,
                 'created' => new \DateTimeImmutable('2022-09-20 00:00:00'),
             ],
             [
                 'type' => 1,
-                'amount' => $courses[0]['price'],
+                'amount' => $this->courses[0]['price'],
                 'expires' => new \DateTimeImmutable('2022-10-17 00:00:00'),
-                'course' => $courses[0],
+                'course' => $this->courses[0],
                 'customer' => $this->admin,
                 'created' => new \DateTimeImmutable('2022-10-10 00:00:00'),
             ],
             [
                 'type' => 1,
-                'amount' => $courses[1]['price'],
+                'amount' => $this->courses[1]['price'],
                 'expires' => new \DateTimeImmutable('2022-09-17 00:00:00'),
-                'course' => $courses[1],
+                'course' => $this->courses[1],
                 'customer' => $this->user,
                 'created' => new \DateTimeImmutable('2022-09-10 00:00:00'),
             ],
             [
                 'type' => 1,
-                'amount' => $courses[1]['price'],
+                'amount' => $this->courses[1]['price'],
                 'expires' => new \DateTimeImmutable('2022-10-12 00:00:00'),
-                'course' => $courses[1],
+                'course' => $this->courses[1],
                 'customer' => $this->admin,
                 'created' => new \DateTimeImmutable('2022-10-05 00:00:00'),
             ],
             // rent
             [
                 'type' => 1,
-                'amount' => $courses[0]['price'],
+                'amount' => $this->courses[0]['price'],
                 'expires' => new \DateTimeImmutable('2022-10-25 00:00:00'),
-                'course' => $courses[0],
+                'course' => $this->courses[0],
                 'customer' => $this->user,
                 'created' => new \DateTimeImmutable('2022-10-18 00:00:00'),
             ],
             [
                 'type' => 1,
-                'amount' => $courses[1]['price'],
+                'amount' => $this->courses[1]['price'],
                 'expires' => new \DateTimeImmutable('2022-10-26 00:00:00'),
-                'course' => $courses[1],
+                'course' => $this->courses[1],
                 'customer' => $this->admin,
                 'created' => new \DateTimeImmutable('2022-10-19 00:00:00'),
             ],
@@ -193,6 +198,41 @@ class BillingClientMock extends BillingClient
         }
 
         return $userDto;
+    }
+
+    public function getTransactions($filters, $token)
+    {
+        if ('' === $token) {
+            throw new AccessDeniedException();
+        }
+
+        $userDto = UserDto::fromToken($token);
+
+        $transactions = $this->transactions;
+
+        $transactions = array_filter($transactions, function ($transaction) use ($userDto) {
+            return $transaction['customer']->username === $userDto->username;
+        });
+
+        if (isset($filters['type'])) {
+            $transactions = array_filter($transactions, function ($transaction) use ($filters) {
+                return $transaction['type'] === $filters['type'];
+            });
+        }
+
+        if (isset($filters['course_code'])) {
+            $transactions = array_filter($transactions, function ($transaction) use ($filters) {
+                return $transaction['course_code'] === $filters['course_code'];
+            });
+        }
+
+        if (isset($filters['skip_expired'])) {
+            $transactions = array_filter($transactions, function ($transaction) {
+                return !isset($transaction['expires_at']) || $transaction['expires_at'] > new \DateTimeImmutable();
+            });
+        }
+
+        return $transactions;
     }
 
     private function generateToken(array $roles, string $username): string

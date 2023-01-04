@@ -11,7 +11,6 @@ use JsonException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
 
 class ProfileController extends AbstractController
 {
@@ -36,7 +35,7 @@ class ProfileController extends AbstractController
         ]);
     }
 
-    #[Route('/profile/history', name: 'app_profile')]
+    #[Route('/profile/history', name: 'app_profile_history')]
     public function history(BillingClient $billingClient, CourseRepository $courseRepository): Response
     {
         try {
@@ -48,7 +47,7 @@ class ProfileController extends AbstractController
             $transactions = $billingClient->getTransactions([], $user->getApiToken());
 
             usort($transactions, static function ($a, $b) {
-                if($a['created'] === $b['created']) {
+                if ($a['created'] === $b['created']) {
                     return 0;
                 }
                 return ($a['created'] > $b['created']) ? 1 : -1;
@@ -72,8 +71,8 @@ class ProfileController extends AbstractController
                 'error',
                 $e->getMessage()
             );
+
             return $this->redirectToRoute('app_course_index');
         }
-
     }
 }

@@ -15,16 +15,19 @@
         </thead>
         <tbody>
         <tr>
-            <td class="text-center">
+            <td class="text-center email">
                 {{ email }}
             </td>
-            <td class="text-center">
+            <td class="text-center role">
                 {{ role }}
             </td>
-            <td class="text-center">
+            <td class="text-center balance">
                 {{ balance }}
             </td>
         </tr>
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        <a href="{{ path('app_profile_history') }}" class="btn btn-primary">История транзакций</a>
+    </div>
 {% endblock %}
