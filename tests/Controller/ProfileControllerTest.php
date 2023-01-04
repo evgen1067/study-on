@@ -4,6 +4,7 @@ namespace App\Tests\Controller;
 
 use App\Service\BillingClient;
 use App\Tests\AbstractTest;
+use App\Tests\Auth\AuthTest;
 use App\Tests\Mock\BillingClientMock;
 use JMS\Serializer\SerializerInterface;
 
@@ -24,24 +25,11 @@ class ProfileControllerTest extends AbstractTest
 
     public function testProfileAndHistory(): void
     {
-        $client = $this->billingClient();
-        $crawler = $client->request('GET', '/');
-        $this->assertResponseOk();
+        $client = self::getClient();
 
-        $link = $crawler->selectLink('Авторизация')->link();
-        $crawler = $client->click($link);
-        $this->assertResponseOk();
-
-        $submitBtn = $crawler->selectButton('Войти');
-        $login = $submitBtn->form([
-            'email' => $this->validCredentials['username'],
-            'password' => $this->validCredentials['password'],
-        ]);
-        $client->submit($login);
-
-        $this->assertResponseRedirect();
-        $crawler = $client->followRedirect();
-        self::assertEquals('/courses/', $client->getRequest()->getPathInfo());
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
 
         $link = $crawler->selectLink('Профиль')->link();
         $crawler = $client->click($link);

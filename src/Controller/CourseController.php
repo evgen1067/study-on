@@ -13,13 +13,11 @@ use App\Repository\LessonRepository;
 use App\Security\User;
 use App\Service\BillingClient;
 use Exception;
-use JMS\Serializer\Serializer;
 use JsonException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -27,9 +25,6 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class CourseController extends AbstractController
 {
     /**
-     * @param CourseRepository $courseRepository
-     * @param BillingClient $billingClient
-     * @return Response
      * @throws JsonException
      * @throws Exception
      */
@@ -37,23 +32,24 @@ class CourseController extends AbstractController
     public function index(CourseRepository $courseRepository, BillingClient $billingClient): Response
     {
         try {
-            # перевели курсы в массивы
+            // перевели курсы в массивы
             $coursesFromBilling = $this->mapToKey($billingClient->getCourses(), 'code');
             $coursesFromLocal = $this->mapToKey($courseRepository->findAllInArray(), 'code');
 
-            # для неавторизованного выводим только те курсы, которых нет в БД биллинга или те, которые бесплатны
+            // для неавторизованного выводим только те курсы, которых нет в БД биллинга или те, которые бесплатны
             if (!$this->getUser()) {
                 $resultCourses = [];
                 foreach ($coursesFromLocal as $code => $course) {
-                    if (!isset($coursesFromBilling[$code]) || $coursesFromBilling[$code]['type'] === 'free') {
+                    if (!isset($coursesFromBilling[$code]) || 'free' === $coursesFromBilling[$code]['type']) {
                         $resultCourses[] = [
                             'course' => $course,
                             'billingInfo' => ['type' => 'free'],
-                            'transaction' => null
+                            'transaction' => null,
                         ];
                     }
                 }
                 $this->addFlash('success', 'Курсы успешно загружены!');
+
                 return $this->render('course/index.html.twig', [
                     'courses' => $resultCourses,
                 ]);
@@ -63,10 +59,10 @@ class CourseController extends AbstractController
              */
             $user = $this->getUser();
 
-            # получаем список покупок текущего пользователя и скипаем те, что уже истекли
+            // получаем список покупок текущего пользователя и скипаем те, что уже истекли
             $transactions = $billingClient->getTransactions([
                 'type' => 'payment',
-                'skip_expired' => true
+                'skip_expired' => true,
             ], $user->getApiToken());
             $transactions = $this->mapToKey($transactions, 'course_code');
 
@@ -77,16 +73,17 @@ class CourseController extends AbstractController
                     // если нет в БД биллинга, значит бесплатный
                     'billingInfo' => $coursesFromBilling[$code] ?? ['type' => 'free'],
                     // оставляем пустым если нет транзакций по этому курсу
-                    'transaction' => $transactions[$code] ?? null
+                    'transaction' => $transactions[$code] ?? null,
                 ];
             }
             $this->addFlash('success', 'Курсы успешно загружены!');
+
             return $this->render('course/index.html.twig', [
                 'courses' => $resultCourses,
             ]);
-
         } catch (BillingException|BillingUnavailableException $e) {
             $this->addFlash('error', $e->getMessage());
+
             return $this->render('course/index.html.twig', [
                 'courses' => [],
             ]);
@@ -98,10 +95,10 @@ class CourseController extends AbstractController
      */
     #[Route('/new', name: 'app_course_new', methods: ['GET', 'POST'])]
     public function new(
-        Request          $request,
+        Request $request,
         CourseRepository $courseRepository,
-        BillingClient    $billingClient): Response
-    {
+        BillingClient $billingClient
+    ): Response {
         $course = new Course();
         $form = $this->createForm(CourseType::class, $course);
         $form->handleRequest($request);
@@ -115,7 +112,7 @@ class CourseController extends AbstractController
                     'type' => $form->get('type')->getData(),
                     'title' => $form->get('name')->getData(),
                     'code' => $form->get('code')->getData(),
-                    'price' => $form->get('price')->getData()
+                    'price' => $form->get('price')->getData(),
                 ];
                 $data = json_encode($data, JSON_THROW_ON_ERROR);
                 $responseFromBilling = $billingClient->newCourse(
@@ -128,12 +125,13 @@ class CourseController extends AbstractController
                 $this->addFlash('success', 'Курс успешно создан!');
 
                 return $this->redirectToRoute('app_course_show', [
-                    'id' => $course->getId()
+                    'id' => $course->getId(),
                 ], Response::HTTP_SEE_OTHER);
             } catch (BillingException|BillingUnavailableException|JsonException $e) {
                 $this->addFlash('error', $e->getMessage());
             }
         }
+
         return $this->renderForm('course/new.html.twig', [
             'course' => $course,
             'form' => $form,
@@ -147,11 +145,12 @@ class CourseController extends AbstractController
          * @var User $user
          */
         $user = $this->getUser();
-        if(!$user) {
+        if (!$user) {
             $this->addFlash(
                 'warning',
                 'Зарегистрируйтесь или авторизуйтесь, чтобы получить доступ к этому курсу!'
             );
+
             return $this->redirectToRoute('app_login');
         }
 
@@ -167,13 +166,11 @@ class CourseController extends AbstractController
                 $e->getMessage()
             );
         }
+
         return $this->redirectToRoute('app_course_index');
     }
 
     /**
-     * @param Course $course
-     * @param BillingClient $billingClient
-     * @return Response
      * @throws JsonException
      * @throws Exception
      */
@@ -181,10 +178,11 @@ class CourseController extends AbstractController
     public function show(Course $course, BillingClient $billingClient): Response
     {
         $billingCourse = null;
+
         try {
             $billingCourse = $billingClient->getCourse($course->getCode());
 
-            if (is_null($billingCourse) || $billingCourse['type'] === 'free') {
+            if (is_null($billingCourse) || 'free' === $billingCourse['type']) {
                 return $this->render('course/show.html.twig', [
                     'course' => $course,
                 ]);
@@ -195,6 +193,7 @@ class CourseController extends AbstractController
                     'warning',
                     'Зарегистрируйтесь или авторизуйтесь, чтобы получить доступ к этому курсу!'
                 );
+
                 return $this->redirectToRoute('app_login');
             }
 
@@ -203,11 +202,11 @@ class CourseController extends AbstractController
              */
             $user = $this->getUser();
 
-            # получаем список транзакций пользователя по этому курсу, которые еще действительны
+            // получаем список транзакций пользователя по этому курсу, которые еще действительны
             $transaction = $billingClient->getTransactions([
                 'type' => 'payment',
                 'course_code' => $course->getCode(),
-                'skip_expired' => true
+                'skip_expired' => true,
             ], $user->getApiToken());
 
             // если пользователь приобрел данный курс или если это АДМИН разрешаем остаться на странице
@@ -216,10 +215,11 @@ class CourseController extends AbstractController
                     'course' => $course,
                 ]);
             }
+
             throw new AccessDeniedException('Данный курс вам недоступен!');
         } catch (BillingException|BillingUnavailableException $e) {
             $this->addFlash('error', $e->getMessage());
-            if (is_null($billingCourse) || $billingCourse['type'] === 'free') {
+            if (is_null($billingCourse) || 'free' === $billingCourse['type']) {
                 return $this->render('course/show.html.twig', [
                     'course' => $course,
                 ]);
@@ -228,6 +228,7 @@ class CourseController extends AbstractController
             return $this->redirectToRoute('app_course_index');
         } catch (AccessDeniedException $e) {
             $this->addFlash('error', $e->getMessage());
+
             return $this->redirectToRoute('app_course_index');
         }
     }
@@ -238,14 +239,14 @@ class CourseController extends AbstractController
         Course $course,
         CourseRepository $courseRepository,
         BillingClient $billingClient
-    ): Response
-    {
+    ): Response {
         $oldCourseCode = $courseRepository->findOneBy(['id' => $course->getId()])->getCode();
         if (!$this->getUser()) {
             $this->addFlash(
                 'warning',
                 'Зарегистрируйтесь или авторизуйтесь, чтобы получить доступ к этой возможности!'
             );
+
             return $this->redirectToRoute('app_login');
         }
 
@@ -253,6 +254,7 @@ class CourseController extends AbstractController
             $billingCourse = $billingClient->getCourse($oldCourseCode);
         } catch (BillingException|JsonException|BillingUnavailableException $e) {
             $this->addFlash('error', $e->getMessage());
+
             return $this->redirectToRoute('app_course_show', ['id' => $oldCourseCode]);
         }
 
@@ -263,10 +265,12 @@ class CourseController extends AbstractController
 
         $form = $this->createForm(
             CourseType::class,
-            $course, [
+            $course,
+            [
             'type' => $billingCourse['type'],
-            'price' => (float)$billingCourse['price']
-        ]);
+            'price' => (float) $billingCourse['price'],
+        ]
+        );
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -277,7 +281,7 @@ class CourseController extends AbstractController
                     'type' => $form->get('type')->getData(),
                     'title' => $form->get('name')->getData(),
                     'code' => $form->get('code')->getData(),
-                    'price' => $form->get('price')->getData()
+                    'price' => $form->get('price')->getData(),
                 ];
                 $data = json_encode($data, JSON_THROW_ON_ERROR);
                 $responseFromBilling = $billingClient->editCourse(
@@ -293,9 +297,10 @@ class CourseController extends AbstractController
                 return $this->redirectToRoute(
                     'app_course_show',
                     [
-                        'id' => $course->getId()
+                        'id' => $course->getId(),
                     ],
-                    Response::HTTP_SEE_OTHER);
+                    Response::HTTP_SEE_OTHER
+                );
             } catch (BillingException|BillingUnavailableException|JsonException $e) {
                 $this->addFlash('error', $e->getMessage());
             }
@@ -310,7 +315,7 @@ class CourseController extends AbstractController
     #[Route('/{id}', name: 'app_course_delete', methods: ['POST'])]
     public function delete(Request $request, Course $course, CourseRepository $courseRepository): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $course->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$course->getId(), $request->request->get('_token'))) {
             $courseRepository->remove($course, true);
         }
 
@@ -330,7 +335,11 @@ class CourseController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $lessonRepository->save($lesson, true);
 
-            return $this->redirectToRoute('app_course_show', ['id' => $course->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute(
+                'app_course_show',
+                ['id' => $course->getId()],
+                Response::HTTP_SEE_OTHER
+            );
         }
 
         return $this->renderForm('lesson/new.html.twig', [
@@ -346,6 +355,7 @@ class CourseController extends AbstractController
         foreach ($array as $obj) {
             $result[$obj[$key]] = $obj;
         }
+
         return $result;
     }
 }

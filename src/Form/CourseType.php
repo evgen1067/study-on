@@ -35,8 +35,8 @@ class CourseType extends AbstractType
                 'choices' => [
                     'Бесплатный' => 'free',
                     'Аренда' => 'rent',
-                    'Покупка' => 'buy'
-                ]
+                    'Покупка' => 'buy',
+                ],
             ])
             ->add('price', MoneyType::class, [
                 'label' => 'Цена',
@@ -45,7 +45,7 @@ class CourseType extends AbstractType
                 'constraints' => [
                     new NotBlank(message: 'Необходимо указать цену курса'),
                 ],
-                'currency' => 'rub'
+                'currency' => 'rub',
             ])
             ->add('name', TextType::class, [
                 'label' => 'Название',
@@ -71,7 +71,10 @@ class CourseType extends AbstractType
             'type' => 'free',
             'price' => 0.0,
         ]);
-        $resolver->setAllowedTypes('type', 'string');
+        // An error has occurred resolving the options of the form "App\Form\CourseType":
+        // The option "type" with value 1 is expected to be of type "string", but is of type "int".
+        // (500 Internal Server Error)
+        // $resolver->setAllowedTypes('type', 'string');
         $resolver->setAllowedTypes('price', 'float');
     }
 }

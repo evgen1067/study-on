@@ -1,22 +1,34 @@
 <?php
 
-namespace old_tests\Controller;
+namespace App\Tests\Controller;
 
 use App\DataFixtures\AppFixtures;
 use App\Entity\Course;
 use App\Tests\AbstractTest;
+use App\Tests\Auth\AuthTest;
+use JMS\Serializer\SerializerInterface;
 use joshtronic\LoremIpsum;
-use function App\Tests\Controller\count;
 
 class CourseControllerTest extends AbstractTest
 {
+    private SerializerInterface $serializer;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->serializer = self::getContainer()->get(SerializerInterface::class);
+    }
+
     /**
      * @dataProvider urlProviderIsSuccessful
      */
     public function testPageIsSuccessful($url): void
     {
-        $client = self::getClient();
-        $client->request('GET', $url);
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
+        self::getClient()->request('GET', $url);
         $this->assertResponseOk();
     }
 
@@ -32,6 +44,10 @@ class CourseControllerTest extends AbstractTest
      */
     public function testPageIsNotFound($url): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
         $client->request('GET', $url);
         $this->assertResponseNotFound();
@@ -45,13 +61,16 @@ class CourseControllerTest extends AbstractTest
 
     public function testGetActionsResponseOk(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
         $courses = self::getEntityManager()->getRepository(Course::class)->findAll();
         foreach ($courses as $course) {
             // детальная страница
             $client->request('GET', '/courses/'.$course->getId());
             $this->assertResponseOk();
-
             // страница редактирования
             $client->request('GET', '/courses/'.$course->getId().'/edit');
             $this->assertResponseOk();
@@ -64,10 +83,13 @@ class CourseControllerTest extends AbstractTest
 
     public function testPostActionsResponseOk(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
         $courses = self::getEntityManager()->getRepository(Course::class)->findAll();
         foreach ($courses as $course) {
-            // детальная страница
             $client->request('POST', '/courses/'.$course->getId().'/edit');
             $this->assertResponseOk();
 
@@ -79,6 +101,10 @@ class CourseControllerTest extends AbstractTest
 
     public function testNumberOfCourses(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $coursesCount = count(self::getEntityManager()->getRepository(Course::class)->findAll());
@@ -87,6 +113,10 @@ class CourseControllerTest extends AbstractTest
 
     public function testNumberOfCourseLessons(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
         $courses = self::getEntityManager()->getRepository(Course::class)->findAll();
         foreach ($courses as $course) {
@@ -98,10 +128,11 @@ class CourseControllerTest extends AbstractTest
 
     public function testSuccessfulCourseCreating(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
         // на странице списка курсов
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
-        $this->assertResponseOk();
 
         // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
@@ -114,6 +145,8 @@ class CourseControllerTest extends AbstractTest
             'course[code]' => 'CODE',
             'course[name]' => 'Test course name',
             'course[description]' => 'Test course description',
+            'course[type]' => 'rent',
+            'course[price]' => 1000.0,
         ]);
         $client->submit($courseCreatingForm);
 
@@ -132,10 +165,12 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseCreatingWithEmptyCode(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         // на странице списка курсов
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
-        $this->assertResponseOk();
 
         // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
@@ -149,6 +184,8 @@ class CourseControllerTest extends AbstractTest
             'course[code]' => '      ',
             'course[name]' => 'Test name',
             'course[description]' => 'Test description',
+            'course[type]' => 'rent',
+            'course[price]' => 1000.0,
         ]);
         $client->submit($courseCreatingForm);
         self::assertSelectorTextContains('.invalid-feedback.d-block', 'Символьный код не может быть пустым');
@@ -156,10 +193,12 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseCreatingWithEmptyName(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         // на странице списка курсов
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
-        $this->assertResponseOk();
 
         // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
@@ -173,6 +212,8 @@ class CourseControllerTest extends AbstractTest
             'course[code]' => 'PHP-TEST',
             'course[name]' => '      ',
             'course[description]' => 'Test description',
+            'course[type]' => 'rent',
+            'course[price]' => 1000.0,
         ]);
         $client->submit($courseCreatingForm);
         self::assertSelectorTextContains('.invalid-feedback.d-block', 'Название не может быть пустым');
@@ -180,10 +221,12 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseCreatingWithNotUniqueCode(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         // на странице списка курсов
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
-        $this->assertResponseOk();
 
         // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
@@ -196,6 +239,8 @@ class CourseControllerTest extends AbstractTest
             'course[code]' => 'PHP-1',
             'course[name]' => 'Test name',
             'course[description]' => 'Test description',
+            'course[type]' => 'rent',
+            'course[price]' => 1000.0,
         ]);
         $client->submit($courseCreatingForm);
         self::assertSelectorTextContains('.invalid-feedback.d-block', 'Данный код уже используется в другом курсе!');
@@ -203,10 +248,12 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseCreatingWithTooLongName(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         // на странице списка курсов
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
-        $this->assertResponseOk();
 
         // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
@@ -222,6 +269,8 @@ class CourseControllerTest extends AbstractTest
             'course[code]' => 'TEST',
             'course[name]' => $loremIpsum->words(50),
             'course[description]' => 'Test description',
+            'course[type]' => 'rent',
+            'course[price]' => 1000.0,
         ]);
         $client->submit($courseCreatingForm);
         self::assertSelectorTextContains('.invalid-feedback.d-block', 'Название должно быть не более 255 символов');
@@ -229,10 +278,12 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseCreatingWithTooLongDescription(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         // на странице списка курсов
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
-        $this->assertResponseOk();
 
         // кликнули на ссылку для перехода к созданию курса
         $link = $crawler->filter('.app_course_new')->link();
@@ -248,6 +299,8 @@ class CourseControllerTest extends AbstractTest
             'course[code]' => 'TEST',
             'course[name]' => 'Test name',
             'course[description]' => $loremIpsum->words(200),
+            'course[type]' => 'rent',
+            'course[price]' => 1000.0,
         ]);
         $client->submit($courseCreatingForm);
         self::assertSelectorTextContains('.invalid-feedback.d-block', 'Описание должно быть не более 1000 символов');
@@ -255,11 +308,12 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseEditing(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         // на странице списка курсов
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
-        $this->assertResponseOk();
-
         $link = $crawler->filter('.app_course_show')->first()->link();
         $crawler = $client->click($link);
         $this->assertResponseOk();
@@ -271,18 +325,22 @@ class CourseControllerTest extends AbstractTest
 
         $submitButton = $crawler->selectButton('Обновить');
         $form = $submitButton->form();
-        // сохраняем id редактируемого курса
+
         $courseId = self::getEntityManager()
             ->getRepository(Course::class)
             ->findOneBy(['code' => $form['course[code]']->getValue()])->getId();
         $form['course[code]'] = 'EDIT-COURSE';
         $form['course[name]'] = 'Edit name course';
+        $form['course[type]'] = 'rent';
+        $form['course[price]'] = 1000;
         $form['course[description]'] = 'Edit description course';
         $client->submit($form);
-        // проверяем, что оказались на странице курса, который редактировали
-        self::assertSame($client->getResponse()->headers->get('location'), '/courses/'.$courseId);
+
+        $this->assertResponseRedirect();
         $crawler = $client->followRedirect();
-        $this->assertResponseOk();
+
+        // проверяем, что оказались на странице курса, который редактировали
+        self::assertSame($client->getRequest()->getPathInfo(), '/courses/'.$courseId);
         // проверяем, что данные изменились
         $this->assertSame($crawler->filter('.course-name')->text(), 'Edit name course');
         $this->assertSame($crawler->filter('.course-description')->text(), 'Edit description course');
@@ -290,6 +348,10 @@ class CourseControllerTest extends AbstractTest
 
     public function testCourseDeleting(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         // на странице списка курсов
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');

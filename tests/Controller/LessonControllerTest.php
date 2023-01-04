@@ -1,18 +1,31 @@
 <?php
 
-namespace old_tests\Controller;
+namespace App\Tests\Controller;
 
 use App\DataFixtures\AppFixtures;
 use App\Entity\Course;
 use App\Entity\Lesson;
 use App\Tests\AbstractTest;
+use App\Tests\Auth\AuthTest;
+use JMS\Serializer\SerializerInterface;
 use joshtronic\LoremIpsum;
-use function App\Tests\Controller\count;
 
 class LessonControllerTest extends AbstractTest
 {
+    private SerializerInterface $serializer;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->serializer = self::getContainer()->get(SerializerInterface::class);
+    }
+
     public function testGetActionsResponseOk(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
         $lessons = self::getEntityManager()->getRepository(Lesson::class)->findAll();
         foreach ($lessons as $lesson) {
@@ -28,6 +41,10 @@ class LessonControllerTest extends AbstractTest
 
     public function testPostActionsResponseOk(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
         $lessons = self::getEntityManager()->getRepository(Lesson::class)->findAll();
         foreach ($lessons as $lesson) {
@@ -39,8 +56,11 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithEmptyName(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
         // перешли на детальную страницу курса
@@ -68,8 +88,11 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithEmptyContent(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
         // перешли на детальную страницу курса
@@ -97,8 +120,11 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithEmptyNumber(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
         // перешли на детальную страницу курса
@@ -126,8 +152,11 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithTooLongName(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
         // перешли на детальную страницу курса
@@ -156,8 +185,11 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithMoreNumber(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
         // перешли на детальную страницу курса
@@ -186,8 +218,11 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithNumberIsNotNumber(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
         // перешли на детальную страницу курса
@@ -216,8 +251,11 @@ class LessonControllerTest extends AbstractTest
 
     public function testSuccessfulLessonCreating(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
         // перешли на детальную страницу курса
@@ -265,8 +303,11 @@ class LessonControllerTest extends AbstractTest
 
     public function testSuccessfulLessonEditing(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
         // перешли на детальную страницу курса
@@ -318,8 +359,11 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonDeleting(): void
     {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        $crawler = $auth->auth();
+
         $client = self::getClient();
-        $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
 
         // перешли на детальную страницу курса

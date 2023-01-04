@@ -200,6 +200,22 @@ class BillingClientMock extends BillingClient
         return $userDto;
     }
 
+    public function getCourses(): array
+    {
+        return $this->courses;
+    }
+
+    public function getCourse(string $courseCode): array
+    {
+        foreach ($this->courses as $course) {
+            if ($course['code'] === $courseCode) {
+                return $course;
+            }
+        }
+
+        return [];
+    }
+
     public function getTransactions($filters, $token)
     {
         if ('' === $token) {
@@ -222,7 +238,7 @@ class BillingClientMock extends BillingClient
 
         if (isset($filters['course_code'])) {
             $transactions = array_filter($transactions, function ($transaction) use ($filters) {
-                return $transaction['course_code'] === $filters['course_code'];
+                return $transaction['course']['code'] === $filters['course_code'];
             });
         }
 
@@ -233,6 +249,63 @@ class BillingClientMock extends BillingClient
         }
 
         return $transactions;
+    }
+
+    public function newCourse($courseData, $token)
+    {
+        if ('' === $token) {
+            throw new AccessDeniedException();
+        }
+
+        $userDto = UserDto::fromToken($token);
+
+        if ($this->admin->username !== $userDto->username) {
+            throw new AccessDeniedException();
+        }
+
+        $courseData = json_decode($courseData, true, 512, JSON_THROW_ON_ERROR);
+
+        if (in_array($courseData['code'], array_column($this->courses, 'code'), true)) {
+            throw new BillingException('Курс с таким кодом уже существует.');
+        }
+
+        $this->courses[] = $courseData;
+
+        return [
+            'success' => true,
+        ];
+    }
+
+    public function editCourse($oldCourseCode, $courseData, $token): array
+    {
+        if ('' === $token) {
+            throw new AccessDeniedException();
+        }
+
+        $userDto = UserDto::fromToken($token);
+
+        if ($this->admin->username !== $userDto->username) {
+            throw new AccessDeniedException();
+        }
+
+        $courseData = json_decode($courseData, true, 512, JSON_THROW_ON_ERROR);
+
+        if (
+            $oldCourseCode !== $courseData['code'] &&
+            in_array($courseData['code'], array_column($this->courses, 'code'), true)
+        ) {
+            throw new BillingException('Курс с таким кодом уже существует.');
+        }
+
+        for ($i = 0; $i < count($this->courses); ++$i) {
+            if ($oldCourseCode === $this->courses[$i]['code']) {
+                $this->courses[$i] = $courseData;
+            }
+        }
+
+        return [
+            'success' => true,
+        ];
     }
 
     private function generateToken(array $roles, string $username): string
