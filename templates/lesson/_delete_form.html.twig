@@ -1,0 +1,5 @@
+<form method="post" action="{{ path('app_lesson_delete', {'id': lesson.id}) }}"
+      onsubmit="return confirm('Вы действительно хотите удалить данный урок?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ lesson.id) }}">
+    <button class="btn btn-danger w-100">Удалить</button>
+</form>

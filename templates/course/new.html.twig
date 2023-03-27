@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Новый курс / StudyOn' }}{% endblock %}
+
+{% block body %}
+    <h1 class="text-center m-3">Создание курса</h1>
+
+    {{ include('course/_form.html.twig') }}
+
+    <a class="btn btn btn-secondary w-100 m-auto" href="{{ path('app_course_index') }}">К списку курсов</a>
+
+{% endblock %}

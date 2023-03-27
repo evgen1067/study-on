@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ course.name ~ ' / StudyOn' }}{% endblock %}
+
+{% block body %}
+    <h1 class="text-center m-3 course-name">{{ course.name }}</h1>
+
+    {% if course.description %}
+        <h5 class="fw-normal course-description">{{ course.description }}</h5>
+    {% else %}
+        <h5 class="fw-normal">Описание отсутствует..
+            <a class="link-info" href="{{ path('app_course_edit', {'id': course.id}) }}">Добавьте сейчас!</a></h5>
+    {% endif %}
+
+    <h5 class="text-center m-3">Список уроков</h5>
+
+    <ul class="list-group m-3">
+        {% for lesson in course.lessons|sort((a, b) => a.number <=> b.number) %}
+            <li class="list-group-item">
+                <a class="link-secondary lesson" href="{{ path('app_lesson_show', { 'id' : lesson.id }) }}">
+                    {{ lesson.number ~ '. ' ~ lesson.name }}
+                </a>
+            </li>
+        {% else %}
+            <li class="list-group-item">
+                Список уроков пуст.. <a class="link-info" href="{{ path('app_lesson_new', {'course': course.id }) }}">Добавитьте сейчас!</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="d-flex flex-column">
+        <a class="btn btn-secondary mb-3" href="{{ path('app_course_index') }}">К списку курсов</a>
+
+        <a class="btn btn-warning mb-3 app_course_edit" href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать</a>
+
+        {{ include('course/_delete_form.html.twig') }}
+
+        <a class="btn btn-primary app_lesson_new" href="{{ path('app_lesson_new', {'id': course.id }) }}">Добавить урок</a>
+    </div>
+{% endblock %}
