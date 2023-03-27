@@ -23,7 +23,7 @@
             </li>
         {% else %}
             <li class="list-group-item">
-                Список уроков пуст.. <a class="link-info" href="{{ path('app_lesson_new', {'course': course.id }) }}">Добавитьте сейчас!</a>
+                Список уроков пуст.. <a class="link-info" href="{{ path('app_lesson_new', {'id': course.id }) }}">Добавитьте сейчас!</a>
             </li>
         {% endfor %}
     </ul>

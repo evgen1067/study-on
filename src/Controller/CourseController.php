@@ -85,7 +85,7 @@ class CourseController extends AbstractController
         return $this->redirectToRoute('app_course_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('{id}/new/lesson', name: 'app_lesson_new', methods: ['GET', 'POST'])]
+    #[Route('/{id}/new/lesson', name: 'app_lesson_new', methods: ['GET', 'POST'])]
     public function newLesson(Request $request, Course $course, LessonRepository $lessonRepository): Response
     {
         $lesson = new Lesson();
