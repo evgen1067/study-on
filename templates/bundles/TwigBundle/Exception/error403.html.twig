@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Ой! В доступе отказано.{% endblock %}
+
+{% block body %}
+    <div class="d-flex align-items-center justify-content-center vh-100">
+        <div class="text-center">
+            <h1 class="display-1 fw-bold">{{ status_code }}</h1>
+            <p class="fs-3"><span class="text-danger">Ой!</span> В доступе отказано.</p>
+            <p class="lead">
+                Извините, в доступе отказано по соображениям безопасности нашего сервера, а также наших конфиденциальных
+                данных.
+                Пожалуйста, <a class="link-info" onclick="history.back()">вернитесь на предыдущую страницу</a>, чтобы
+                продолжить просмотр.
+            </p>
+            <a href="{{ path('app_course_index') }}" class="btn btn-primary">К курсам</a>
+        </div>
+    </div>
+{% endblock %}
