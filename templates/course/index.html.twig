@@ -32,5 +32,7 @@
         </tbody>
     </table>
 
-    <a class="btn btn-primary app_course_new" href="{{ path('app_course_new') }}">Добавить новый курс</a>
+    {% if is_granted('ROLE_SUPER_ADMIN') %}
+        <a class="btn btn-primary app_course_new" href="{{ path('app_course_new') }}">Добавить новый курс</a>
+    {% endif %}
 {% endblock %}

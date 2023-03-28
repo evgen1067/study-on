@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Регистрация / Study-On {% endblock %}
+
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block body %}
+    <div class="mt-5">
+        <h1 class="h3 mb-3 font-weight-normal text-center">Регистрация</h1>
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-primary mb-3 w-100 save-button">{{ button_label|default('Сохранить') }}</button>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

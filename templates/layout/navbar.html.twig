@@ -1,0 +1,27 @@
+{% set current_path = app.request.get('_route') %}
+
+<aside id="colorlib-aside" role="complementary" class="js-fullheight">
+    <nav id="colorlib-main-menu" role="navigation">
+        <ul>
+            <li class="{{ (current_path == 'app_course_index' or current_path == 'index') ? 'colorlib-active' : '' }}">
+                <a href="{{ path('app_course_index') }}">Курсы</a>
+            </li>
+            {% if is_granted('ROLE_USER') %}
+                <li class="{{ (current_path == 'app_profile') ? 'colorlib-active' : '' }}">
+                    <a href="{{ path('app_profile') }}">Профиль</a>
+                </li>
+                <li>
+                    <a href="{{ path('app_logout') }}">Выход</a>
+                </li>
+            {% else %}
+
+                <li class="{{ (current_path == 'app_login') ? 'colorlib-active' : '' }}">
+                    <a href="{{ path('app_login') }}">Авторизация</a>
+                </li>
+                <li class="{{ (current_path == 'app_register') ? 'colorlib-active' : '' }}">
+                    <a href="{{ path('app_register') }}">Регистрация</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</aside>

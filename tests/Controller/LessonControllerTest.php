@@ -6,38 +6,53 @@ use App\DataFixtures\AppFixtures;
 use App\Entity\Course;
 use App\Entity\Lesson;
 use App\Tests\AbstractTest;
+use JMS\Serializer\SerializerInterface;
 use joshtronic\LoremIpsum;
 
 class LessonControllerTest extends AbstractTest
 {
+    private SerializerInterface $serializer;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->serializer = self::getContainer()->get(SerializerInterface::class);
+    }
+
     public function testGetActionsResponseOk(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $lessons = self::getEntityManager()->getRepository(Lesson::class)->findAll();
         foreach ($lessons as $lesson) {
             // детальная страница
-            $client->request('GET', '/lessons/'.$lesson->getId());
+            $client->request('GET', '/lessons/' . $lesson->getId());
             $this->assertResponseOk();
 
             // страница редактирования
-            $client->request('GET', '/lessons/'.$lesson->getId().'/edit');
+            $client->request('GET', '/lessons/' . $lesson->getId() . '/edit');
             $this->assertResponseOk();
         }
     }
 
     public function testPostActionsResponseOk(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $lessons = self::getEntityManager()->getRepository(Lesson::class)->findAll();
         foreach ($lessons as $lesson) {
             // страница редактирования
-            $client->request('POST', '/lessons/'.$lesson->getId().'/edit');
+            $client->request('POST', '/lessons/' . $lesson->getId() . '/edit');
             $this->assertResponseOk();
         }
     }
 
     public function testLessonCreatingWithEmptyName(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -70,6 +85,8 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithEmptyContent(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -102,6 +119,8 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithEmptyNumber(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -134,6 +153,8 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithTooLongName(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -167,6 +188,8 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithMoreNumber(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -200,6 +223,8 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonCreatingWithNumberIsNotNumber(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -233,6 +258,8 @@ class LessonControllerTest extends AbstractTest
 
     public function testSuccessfulLessonCreating(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -263,7 +290,7 @@ class LessonControllerTest extends AbstractTest
         $client->submit($lessonCreatingForm);
 
         // проверяем, что оказались на странице курса, который редактировали
-        self::assertSame($client->getResponse()->headers->get('location'), '/courses/'.$course->getId());
+        self::assertSame($client->getResponse()->headers->get('location'), '/courses/' . $course->getId());
         $crawler = $client->followRedirect();
         $this->assertResponseOk();
 
@@ -282,6 +309,8 @@ class LessonControllerTest extends AbstractTest
 
     public function testSuccessfulLessonEditing(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -316,7 +345,7 @@ class LessonControllerTest extends AbstractTest
         $client->submit($form);
 
         // проверяем, что оказались на странице курса, который редактировали
-        self::assertSame($client->getResponse()->headers->get('location'), '/courses/'.$course->getId());
+        self::assertSame($client->getResponse()->headers->get('location'), '/courses/' . $course->getId());
         $crawler = $client->followRedirect();
         $this->assertResponseOk();
 
@@ -335,6 +364,8 @@ class LessonControllerTest extends AbstractTest
 
     public function testLessonDeleting(): void
     {
+        $crawler = $this->beforeTesting();
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/courses/');
         $this->assertResponseOk();
@@ -377,11 +408,18 @@ class LessonControllerTest extends AbstractTest
 
         // удалили урок и проверили редирект
         $client->submitForm('Удалить');
-        self::assertSame($client->getResponse()->headers->get('location'), '/courses/'.$course->getId());
+        self::assertSame($client->getResponse()->headers->get('location'), '/courses/' . $course->getId());
         $crawler = $client->followRedirect();
 
         // проверили, что кол-во уроков уменьшилось
         self::assertCount($countBeforeDeleting - 1, $crawler->filter('.lesson'));
+    }
+
+    private function beforeTesting()
+    {
+        $auth = new AuthTest();
+        $auth->setSerializer($this->serializer);
+        return $auth->auth();
     }
 
     protected function getFixtures(): array

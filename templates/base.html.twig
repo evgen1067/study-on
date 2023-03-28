@@ -12,9 +12,33 @@
             {{ encore_entry_script_tags('app') }}
         {% endblock %}
     </head>
-    <body>
+    <body class="bg-white">
+    <div class="container-fluid">
+        {% include 'layout/navbar.html.twig' %}
+        <section class="notification-wrapper">
+            <div class="d-flex flex-column">
+                {% for message in app.flashes('success') %}
+                    {% include 'flash-notification/notification.html.twig'
+                        with { type : 'success', message: message }
+                    %}
+                {% endfor %}
+                {% for message in app.flashes('warning') %}
+                    {% include 'flash-notification/notification.html.twig'
+                        with { type : 'warn', message: message }
+                    %}
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    {% include 'flash-notification/notification.html.twig'
+                        with { type : 'error', message: message }
+                    %}
+                {% endfor %}
+            </div>
+        </section>
         <div class="container">
-            {% block body %}{% endblock %}
+            <div class="offset-1 col-11">
+                {% block body %}{% endblock %}
+            </div>
         </div>
+    </div>
     </body>
 </html>
