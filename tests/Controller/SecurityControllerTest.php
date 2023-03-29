@@ -80,28 +80,6 @@ class SecurityControllerTest extends AbstractTest
         $this->assertResponseOk();
 
         $login = $crawler->selectButton('Сохранить')->form([
-            'register[username]' => 'test@study-on.ru',
-            'register[password][first]' => 'password',
-            'register[password][second]' => 'password',
-        ]);
-        $client->submit($login);
-
-        $this->assertResponseRedirect();
-        $crawler = $client->followRedirect();
-
-        self::assertEquals('/courses/', $client->getRequest()->getPathInfo());
-
-        $link = $crawler->selectLink('Выход')->link();
-        $crawler = $client->click($link);
-
-        $this->assertResponseRedirect();
-        $crawler = $client->followRedirect();
-
-        $link = $crawler->selectLink('Регистрация')->link();
-        $crawler = $client->click($link);
-        $this->assertResponseOk();
-
-        $login = $crawler->selectButton('Сохранить')->form([
             'register[username]' => $this->validCredentials['username'],
             'register[password][first]' => 'password',
             'register[password][second]' => 'password',
@@ -116,6 +94,17 @@ class SecurityControllerTest extends AbstractTest
             '.notification.symfony-notification.error',
             'Email уже используется.'
         );
+
+        $login = $crawler->selectButton('Сохранить')->form([
+            'register[username]' => 'test@study-on.ru',
+            'register[password][first]' => 'password',
+            'register[password][second]' => 'password',
+        ]);
+        $client->submit($login);
+
+        $this->assertResponseRedirect();
+        $crawler = $client->followRedirect();
+        self::assertEquals('/courses/', $client->getRequest()->getPathInfo());
     }
 
     private function billingClient()
