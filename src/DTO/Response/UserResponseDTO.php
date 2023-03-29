@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTO\Response;
 
 use JMS\Serializer\Annotation as Serializer;
 

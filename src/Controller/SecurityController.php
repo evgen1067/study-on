@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\DTO\UserRequestDTO;
+use App\DTO\Request\UserRequestDTO;
 use App\Exception\BillingException;
 use App\Exception\BillingUnavailableException;
 use App\Exception\BillingValidationException;
@@ -12,7 +12,6 @@ use App\Security\BillingAuthenticator;
 use App\Security\User;
 use App\Service\BillingClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -87,7 +86,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route(path: 'profile', name: 'app_profile')]
+    #[Route(path: 'profile', name: 'app_profile', methods: ['GET'])]
     public function profile(
         BillingClient $bc,
         CourseRepository $repo
@@ -106,9 +105,44 @@ class SecurityController extends AbstractController
         } catch (BillingException | BillingUnavailableException | \JsonException $e) {
             $this->addFlash('error', $e->getMessage());
 
-            return $this->render('course/index.html.twig', [
-                'courses' => $repo->findAll(),
+            return $this->redirectToRoute('app_course_index');
+        }
+    }
+
+    #[Route('/profile/history', name: 'app_profile_history', methods: ['GET'])]
+    public function history(
+        BillingClient $bc,
+        CourseRepository $repo
+    ): Response {
+        try {
+            /**
+             * @var User $user
+             */
+            $user = $this->getUser();
+            $transactions = $bc->history([], $user->getApiToken());
+
+            usort($transactions, static function ($a, $b) {
+                if ($a['created']['date'] === $b['created']['date']) {
+                    return 0;
+                }
+                return ($a['created']['date'] > $b['created']['date']) ? 1 : -1;
+            });
+            foreach ($transactions as &$transaction) {
+                if (isset($transaction['course_code'])) {
+                    $course = $repo->findOneBy(['code' => $transaction['course_code']]);
+                    $transaction['course'] = [
+                        'id' => $course->getId(),
+                        'name' => $course->getName(),
+                    ];
+                }
+            }
+            return $this->render('security/history.html.twig', [
+                'transactions' => $transactions,
             ]);
+        } catch (BillingException | BillingUnavailableException | \JsonException $e) {
+            $this->addFlash('error', $e->getMessage());
+
+            return $this->redirectToRoute('app_course_index');
         }
     }
 }

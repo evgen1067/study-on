@@ -8,30 +8,59 @@
     <table class="table table-bordered table-striped table-hover">
         <thead>
         <tr>
-            <th>Название</th>
-            <th>Описание</th>
+            <th class="text-center">Название</th>
+            <th class="text-center">Описание</th>
+            <th class="text-center">Покупка</th>
         </tr>
         </thead>
         <tbody>
-        {% for course in courses %}
+        {% for item in courses %}
+            {% set course = item.course %}
+            {% include 'course/modal.html.twig' with { course : course } %}
             <tr class="course">
                 <td>
-                    <a class="link-secondary app_course_show" href="{{ path('app_course_show', {'id': course.id}) }}">{{ course.name }}</a>
+                    <a class="link-secondary app_course_show"
+                       href="{{ path('app_course_show', {'id': course.id}) }}">{{ course.name }}</a>
                 </td>
                 {% if course.description %}
                     <td>{{ course.description }}</td>
                 {% else %}
                     <td>Описание к курсу отсутствует.</td>
                 {% endif %}
+                <td class="text-center">
+                    {% if item.billingInfo.type == 'free' %}
+                        Бесплатный
+                    {% elseif item.billingInfo.type == 'rent' %}
+                        {% if item.transaction %}
+                            Арендован до {{ item.transaction.expires.date|date("d.m.Y") }}
+                        {% else %}
+                            <a class="btn btn-warning payment-button w-100"
+                               data-bs-toggle="modal"
+                               data-bs-target="#buy-modal-{{ course.code }}">
+                                Арендовать ({{ item.billingInfo.price }} руб.)
+                            </a>
+                        {% endif %}
+                    {% elseif item.billingInfo.type == 'buy' %}
+                        {% if item.transaction %}
+                            Куплен
+                        {% else %}
+                            <a class="btn btn-success payment-button w-100"
+                               data-bs-toggle="modal"
+                               data-bs-target="#buy-modal-{{ course.code }}">
+                                Купить ({{ item.billingInfo.price }} руб.)
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+                </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="2">Курсы отсутствуют</td>
+                <td colspan="3">Курсы отсутствуют</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
-
     {% if is_granted('ROLE_SUPER_ADMIN') %}
         <a class="btn btn-primary app_course_new" href="{{ path('app_course_new') }}">Добавить новый курс</a>
     {% endif %}

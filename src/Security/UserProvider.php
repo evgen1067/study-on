@@ -2,6 +2,10 @@
 
 namespace App\Security;
 
+use App\Exception\BillingException;
+use App\Exception\BillingUnavailableException;
+use App\Service\BillingClient;
+use DateTime;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -11,6 +15,13 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
 {
+    private BillingClient $billingClient;
+
+    public function __construct(BillingClient $billingClient)
+    {
+        $this->billingClient = $billingClient;
+    }
+
     public function loadUserByIdentifier($identifier): UserInterface
     {
         return (new User())->setEmail($identifier);
@@ -26,11 +37,29 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
      *
      * If your firewall is "stateless: true" (for a pure API), this
      * method is not called.
+     * @throws \JsonException
      */
     public function refreshUser(UserInterface $user): UserInterface
     {
         if (!$user instanceof User) {
             throw new UnsupportedUserException(sprintf('Invalid user class "%s".', get_class($user)));
+        }
+
+        [$exp, $email, $roles] = User::jwtDecode($user->getApiToken());
+        $exp = (new DateTime())->setTimestamp($exp);
+        $time = (new DateTime())->add(new \DateInterval('PT5M'));
+
+        if ($time >= $exp) {
+            $refreshToken = json_encode([
+                'refresh_token' => $user->getRefreshToken()
+            ]);
+            try {
+                $newData = $this->billingClient->refresh($refreshToken);
+                $user->setApiToken($newData->getApiToken());
+                $user->setRefreshToken($newData->getRefreshToken());
+            } catch (BillingException | BillingUnavailableException | \JsonException $e) {
+                throw new \RuntimeException($e->getMessage());
+            }
         }
 
         return $user;

@@ -18,6 +18,13 @@ security:
             logout:
                 path: app_logout
                 target: app_course_index
+            remember_me:
+              secret: '%kernel.secret%' # required
+              lifetime: 604800 # 1 week in seconds
+              # by default, the feature is enabled by checking a
+              # checkbox in the login form (see below), uncomment the
+              # following line to always enable it.
+              #always_remember_me: true
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -31,10 +38,8 @@ security:
          # список курсов и просмотр страницы курса должны быть доступны всем пользователям
          # просмотр содержимого урока должен быть доступен пользователям с правами не ниже ROLE_USER
          # с правами доступа ROLE_SUPER_ADMIN доступны операции добавления, редактирования и удаления курсов и уроков.
-         - { path: ^/login, roles: PUBLIC_ACCESS }
-         - { path: ^/register, roles: PUBLIC_ACCESS }
-         - { path: ^/profile, roles: IS_AUTHENTICATED_FULLY }
-         - { path: ^/logout, roles: IS_AUTHENTICATED_FULLY }
+         - { path: ^/(login|register), roles: PUBLIC_ACCESS }
+         - { path: ^/(profile|logout), roles: IS_AUTHENTICATED_FULLY }
          - { path: ^/(courses|lessons)/\d+$, methods: [ POST ], roles: [ ROLE_SUPER_ADMIN ] }
          - { path: ^/lessons/\d+$, roles: [ ROLE_USER ] }
          - { path: ^/courses/new, roles: [ ROLE_SUPER_ADMIN ] }

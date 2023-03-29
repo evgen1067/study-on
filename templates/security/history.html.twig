@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}История / Профиль / StudyOn{% endblock %}
+
+{% block body %}
+    <h2 class="text-center m-3">История начислений и списаний</h2>
+
+    <table class="table table-bordered table-striped table-hover mt-3">
+        <thead>
+        <tr>
+            <th class="text-center">Дата проведения транзакции</th>
+            <th class="text-center">Тип операции</th>
+            <th class="text-center">Курс</th>
+            <th class="text-center">Значение</th>
+            <th class="text-center">Срок действия до</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for t in transactions %}
+            <tr class="transactions-value">
+                <td class="text-center">
+                    {{ t.created.date|date("d.m.Y") }}
+                </td>
+
+                <td class="text-center">
+                    {% if t.type == 'deposit' %}
+                        начисление
+                    {% else %}
+                        списание
+                    {% endif %}
+                </td>
+
+                <td class="text-center">
+                    {% if t.course_code is not null %}
+                        <a class="link-info" href="{{ path('app_course_show', { 'id' : t.course.id }) }}">{{ t.course.name }}</a>
+                    {% else %}
+
+                    {% endif %}
+                </td>
+
+                <td class="text-center">
+                    {{ t.amount }}
+                </td>
+
+                <td class="text-center">
+                    {% if t.expires is not null %}
+                        {{ t.expires.date|date("d.m.Y") }}
+                    {% else %}
+
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

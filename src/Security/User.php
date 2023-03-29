@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\DTO\TokenResponseDTO;
+use App\DTO\Response\TokenResponseDTO;
 use DateTime;
 use JsonException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -15,21 +15,9 @@ class User implements UserInterface
 
     private ?string $apiToken = null;
 
+    private ?string $refreshToken = null;
+
     private ?string $password = null;
-
-    private ?DateTime $exp = null;
-
-    public function getExp(): ?DateTime
-    {
-        return $this->exp;
-    }
-
-    public function setExp(DateTime $exp): self
-    {
-        $this->exp = $exp;
-
-        return $this;
-    }
 
     public function getApiToken(): ?string
     {
@@ -39,6 +27,18 @@ class User implements UserInterface
     public function setApiToken(string $apiToken): self
     {
         $this->apiToken = $apiToken;
+
+        return $this;
+    }
+
+    public function getRefreshToken(): ?string
+    {
+        return $this->refreshToken;
+    }
+
+    public function setRefreshToken(string $refreshToken): self
+    {
+        $this->refreshToken = $refreshToken;
 
         return $this;
     }
@@ -114,7 +114,7 @@ class User implements UserInterface
             ->setEmail($email)
             ->setApiToken($tokenDTO->token)
             ->setRoles($roles)
-            ->setExp((new DateTime())->setTimestamp($exp));
+            ->setRefreshToken($tokenDTO->refresh_token);
         return $u;
     }
 

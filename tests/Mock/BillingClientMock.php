@@ -2,9 +2,9 @@
 
 namespace App\Tests\Mock;
 
-use App\DTO\TokenResponseDTO;
-use App\DTO\UserRequestDTO;
-use App\DTO\UserResponseDTO;
+use App\DTO\Request\UserRequestDTO;
+use App\DTO\Response\TokenResponseDTO;
+use App\DTO\Response\UserResponseDTO;
 use App\Exception\BillingException;
 use App\Security\User;
 use App\Service\BillingClient;
